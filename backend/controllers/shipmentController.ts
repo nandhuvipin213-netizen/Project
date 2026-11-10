@@ -4,6 +4,8 @@ import DriverModel from "../models/driver.js";
 import VehicleModel from "../models/vehicle.js";
 import vehicleLocationModel from "../models/vehicleLocation.js";
 import { geocodeAddress } from "../utils/geocode.js";
+import NotificationModel from "../models/Notification.js";
+import { getRouteDistance } from "../utils/getRouteDistance.js";
 
 
 
@@ -14,8 +16,11 @@ export const createShipment: RequestHandler = async (req, res) => {
       pickupAddress,
       deliveryAddress,
       goodsType,
+      goodsDescription,
+      packageCount,
       weight,
-      volume,
+      pickupDate,
+      pickupTime,
       isFragile,
     } = req.body;
 
@@ -40,6 +45,20 @@ export const createShipment: RequestHandler = async (req, res) => {
       });
       return;
     }
+    if (!goodsType) {
+      res.status(400).json({
+        success: false,
+        message: "Goods type is required",
+      });
+      return;
+    }
+    if (!packageCount || Number(packageCount) < 1 || !pickupDate || !pickupTime) {
+      res.status(400).json({
+        success: false,
+        message: "Package count, pickup date and pickup time are required",
+      });
+      return;
+    }
 
     // Respect Nominatim's public service rate limit
     await new Promise((resolve) => setTimeout(resolve, 1100));
@@ -55,6 +74,17 @@ export const createShipment: RequestHandler = async (req, res) => {
       return;
     }
 
+    const distanceKm = await getRouteDistance(
+        pickupCoordinates,
+        deliveryCoordinates
+    );
+
+    const advanceRatePerKm=5;
+
+    const advanceAmount= Number(
+      (distanceKm*advanceRatePerKm).toFixed(2)
+    )
+
     // Save shipment with both coordinate sets
     const shipment = await shipmentModel.create({
       customer: customerId,
@@ -63,9 +93,18 @@ export const createShipment: RequestHandler = async (req, res) => {
       pickupCoordinates,
       deliveryCoordinates,
       goodsType,
-      weight,
-      volume,
+      goodsDescription,
+      packageCount: Number(packageCount),
+      pickupDate: new Date(pickupDate),
+      pickupTime,
+      weight: weight ? Number(weight) : null,
+      volume: 0,
       isFragile,
+
+      distanceKm,
+      advanceAmount,
+      advanceRatePerKm,
+      
       statusHistory: [
         {
           status: "pending",
@@ -281,6 +320,19 @@ export const assignShipment: RequestHandler = async (req, res) => {
     driver.availabilityStatus = "on-duty";
     await driver.save();
 
+    // 12. Create notification for assigned driver
+    try {
+      await NotificationModel.create({
+        recipient: driverUser._id,
+        title: "New Shipment Assigned",
+        message: `A new shipment has been assigned to you. Shipment ID: ${shipment._id}`,
+        type: "shipment",
+        isRead: false,
+      });
+    } catch (notificationError) {
+      console.error("Failed to create driver notification:", notificationError);
+    }
+
     // 12. Response
     res.status(200).json({
       success: true,
@@ -376,38 +428,38 @@ export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
     });
 
     await shipment.save();
-  if (status === "delivered") {
-  // Check whether the driver has other active shipments
-  const otherActiveShipments = await shipmentModel.find({
-    assignedDriver: driverId,
-    _id: { $ne: shipment._id },
-    status: { $in: ["assigned", "picked-up", "in-transit"] },
-  });
+    if (status === "delivered") {
+      // Check whether the driver has other active shipments
+      const otherActiveShipments = await shipmentModel.find({
+        assignedDriver: driverId,
+        _id: { $ne: shipment._id },
+        status: { $in: ["assigned", "picked-up", "in-transit"] },
+      });
 
-  // Make driver available only if no active shipments remain
-  if (otherActiveShipments.length === 0) {
-    await DriverModel.findOneAndUpdate(
-      { user: driverId },
-      { availabilityStatus: "available" }
-    );
-  }
+      // Make driver available only if no active shipments remain
+      if (otherActiveShipments.length === 0) {
+        await DriverModel.findOneAndUpdate(
+          { user: driverId },
+          { availabilityStatus: "available" }
+        );
+      }
 
-  // Release vehicle only if no other active shipment uses it
-  if (shipment.assignedVehicle) {
-    const vehicleInUse = await shipmentModel.findOne({
-      assignedVehicle: shipment.assignedVehicle,
-      _id: { $ne: shipment._id },
-      status: { $in: ["assigned", "picked-up", "in-transit"] },
-    });
+      // Release vehicle only if no other active shipment uses it
+      if (shipment.assignedVehicle) {
+        const vehicleInUse = await shipmentModel.findOne({
+          assignedVehicle: shipment.assignedVehicle,
+          _id: { $ne: shipment._id },
+          status: { $in: ["assigned", "picked-up", "in-transit"] },
+        });
 
-    if (!vehicleInUse) {
-      await VehicleModel.findByIdAndUpdate(
-        shipment.assignedVehicle,
-        { status: "available" }
-      );
+        if (!vehicleInUse) {
+          await VehicleModel.findByIdAndUpdate(
+            shipment.assignedVehicle,
+            { status: "available" }
+          );
+        }
+      }
     }
-  }
-}
 
     res.status(200).json({
       success: true,
@@ -478,84 +530,84 @@ export const getShipmentTracking: RequestHandler = async (req, res) => {
 export const deleteShipment: RequestHandler = async (req, res) => {
   try {
 
-        // Check shipment ID
-        const id = req.params.id;
+    // Check shipment ID
+    const id = req.params.id;
 
-        // Check shipment ID
-        if (
-          typeof id !== "string" ||
-          !/^[a-fA-F0-9]{24}$/.test(id)
-        ) {
-          res.status(400).json({
-            success: false,
-            message: "Invalid shipment ID",
-          });
-          return;
-        }
+    // Check shipment ID
+    if (
+      typeof id !== "string" ||
+      !/^[a-fA-F0-9]{24}$/.test(id)
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid shipment ID",
+      });
+      return;
+    }
 
-        const shipment = await shipmentModel.findById(id);
+    const shipment = await shipmentModel.findById(id);
 
-        if (!shipment) {
-          res.status(404).json({
-            success: false,
-            message: "Shipment not found",
-          });
-          return;
-        }
+    if (!shipment) {
+      res.status(404).json({
+        success: false,
+        message: "Shipment not found",
+      });
+      return;
+    }
 
-        // Active shipments must be cancelled before deletion
-        const activeStatuses = [
-          "assigned",
-          "picked-up",
-          "in-transit",
-        ] as const;
+    // Active shipments must be cancelled before deletion
+    const activeStatuses = [
+      "assigned",
+      "picked-up",
+      "in-transit",
+    ] as const;
 
-        const isActiveShipment = activeStatuses.some((status) => status === shipment.status);
+    const isActiveShipment = activeStatuses.some((status) => status === shipment.status);
 
-        if (isActiveShipment) {
-          res.status(400).json({
-            success: false,
-            message: "Please cancel this active shipment before deleting it",
-          });
-          return;
-        }
+    if (isActiveShipment) {
+      res.status(400).json({
+        success: false,
+        message: "Please cancel this active shipment before deleting it",
+      });
+      return;
+    }
 
-        const vehicleId = shipment.assignedVehicle;
+    const vehicleId = shipment.assignedVehicle;
 
-        // Remove tracking records associated with this shipment
-        await vehicleLocationModel.deleteMany({
-          shipment: shipment._id,
-        });
+    // Remove tracking records associated with this shipment
+    await vehicleLocationModel.deleteMany({
+      shipment: shipment._id,
+    });
 
-        // Delete shipment
-        await shipmentModel.findByIdAndDelete(id);
+    // Delete shipment
+    await shipmentModel.findByIdAndDelete(id);
 
-        // Release vehicle if no other active shipment uses it
-        if (vehicleId) {
-          const otherActiveShipments = await shipmentModel.countDocuments({
-            assignedVehicle: vehicleId,
-            status: { $in: activeStatuses },
-          });
+    // Release vehicle if no other active shipment uses it
+    if (vehicleId) {
+      const otherActiveShipments = await shipmentModel.countDocuments({
+        assignedVehicle: vehicleId,
+        status: { $in: activeStatuses },
+      });
 
-          if (otherActiveShipments === 0) {
-            await VehicleModel.findOneAndUpdate(
-              { _id: vehicleId, status: "in-use" },
-              { status: "available" }
-            );
-          }
-        }
-
-        res.status(200).json({
-          success: true,
-          message: "Shipment deleted successfully",
-        });
-      }
-      catch (error) {
-        console.error("Delete shipment error:", error);
-
-        res.status(500).json({
-          success: false,
-          message: "Failed to delete shipment", 
-        });
+      if (otherActiveShipments === 0) {
+        await VehicleModel.findOneAndUpdate(
+          { _id: vehicleId, status: "in-use" },
+          { status: "available" }
+        );
       }
     }
+
+    res.status(200).json({
+      success: true,
+      message: "Shipment deleted successfully",
+    });
+  }
+  catch (error) {
+    console.error("Delete shipment error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete shipment",
+    });
+  }
+}

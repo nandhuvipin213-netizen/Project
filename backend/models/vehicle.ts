@@ -33,7 +33,13 @@ const vehicleSchema = new Schema({
     isActive: {
         type: Boolean,
         default: true
-    }
+    },
+    startingPrice: {
+  type: Number,
+  required: true,
+  min: 0,
+  default: 0,
+},
 }, {
     timestamps: true,
     versionKey: false

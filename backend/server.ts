@@ -9,15 +9,10 @@ import shipmentRouter from "./routes/shipmentroutes.js"
 import vehicleLocationRoutes from "./routes/vehicleLocationRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import driverRoutes from "./routes/driverRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 dotenv.config();
 const app = express();
-app.use((req, res, next) => {
-  console.log("Request URL:", req.originalUrl);
-  console.log("Content-Type:", req.headers["content-type"]);
-  console.log("Request Body:", req.body);
-  next();
-});
 app.use(cors());
 app.use(express.json());
 
@@ -28,6 +23,7 @@ app.use("/api/shipments",shipmentRouter)
 app.use("/api/vehicle-locations", vehicleLocationRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/drivers", driverRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 
 

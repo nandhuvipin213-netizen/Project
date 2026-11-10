@@ -26,7 +26,7 @@ const driverSchema = new Schema(
 
     address: {
       type: String,
-      required: [true, "Address is required"],
+      required: true,
       trim: true,
     },
 
@@ -34,6 +34,20 @@ const driverSchema = new Schema(
       type: String,
       enum: ["available", "on-duty", "off-duty"],
       default: "available",
+    },
+    currentLocation: {
+      lat: {
+        type: Number,
+        default: null,
+      },
+      lng: {
+        type: Number,
+        default: null,
+      },
+      updatedAt: {
+        type: Date,
+        default: null,
+      },
     },
   },
   {

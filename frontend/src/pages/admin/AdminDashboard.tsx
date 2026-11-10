@@ -389,8 +389,7 @@
 // }
 
 
-
-
+import DriverLocationsMap from "../../components/DriverLocationsMap";
 import React, { useEffect, useState } from "react";
 import api from "../../services/Api";
 import {
@@ -974,6 +973,8 @@ export default function AdminDashboard() {
             </div>
           </article>
         </section>
+
+        <DriverLocationsMap />
 
         {/* Shipment workspace */}
         <section className="overflow-hidden rounded-[24px] bg-[#24233d] p-3 shadow-[0_12px_35px_rgba(39,34,83,0.16)] sm:p-4">

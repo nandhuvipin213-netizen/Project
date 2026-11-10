@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getAllDriverLocations,
   createDriver,
   getAllDrivers,
   getDriverById,
@@ -8,6 +9,9 @@ import {
   activateDriver,
   getDriverDashboard,
   getMyShipments,
+  updateDriverLocation,
+  getMyDriverLocation,
+  getMyDriverProfile,
 } from "../controllers/driverController.js";
 import { resetDriverPassword } from "../controllers/authcontroller.js";
 
@@ -37,6 +41,33 @@ router.get(
   getMyShipments
 );
 
+// DRIVER LIVE LOCATION
+router.put(
+  "/update-location",
+  authenticateToken,
+  authorizeRoles("driver"),
+  updateDriverLocation
+);
+router.get(
+  "/locations",
+  authenticateToken,
+  authorizeRoles("admin"),
+  getAllDriverLocations
+);
+
+router.get(
+  "/my-location",
+  authenticateToken,
+  authorizeRoles("driver"),
+  getMyDriverLocation
+);
+
+router.get(
+  "/my-profile",
+  authenticateToken,
+  authorizeRoles("driver"),
+  getMyDriverProfile
+);
 // Dynamic admin routes MUST come afterwards
 router.get("/:id", authenticateToken, authorizeRoles("admin"), getDriverById);
 

@@ -9,6 +9,7 @@ export const authorizeRoles = (
         const authUser = res.locals.authUser as
             | { userId: string; role: Role }
             | undefined;
+            console.log("Role authorization check:", authUser);
 
 
         if (!authUser) {

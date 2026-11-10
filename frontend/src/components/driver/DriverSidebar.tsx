@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useNotifications } from "../../context/NotificationContext";
 import {
     LayoutDashboard,
     Package,
@@ -55,16 +56,17 @@ export const driverNavItems = [
 ];
 
 function DriverSidebar() {
-   const navigate = useNavigate();
-const handleLogout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
+    const navigate = useNavigate();
+    const { unreadCount } = useNotifications();
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
 
-  // Notify the protected route that the driver logged out
-  window.dispatchEvent(new Event("driver-auth-changed"));
+        // Notify the protected route that the driver logged out
+        window.dispatchEvent(new Event("driver-auth-changed"));
 
-  navigate("/driver/dashboard", { replace: true });
-};
+        navigate("/driver/dashboard", { replace: true });
+    };
     return (
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-[#11132f] text-white lg:flex">
             {/* Logo */}
@@ -105,9 +107,9 @@ const handleLogout = () => {
                             <Icon className="h-[18px] w-[18px]" />
                             <span>{item.name}</span>
 
-                            {item.name === "Notifications" && (
+                            {item.name === "Notifications" && unreadCount > 0 && (
                                 <span className="ml-auto grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
-                                    3
+                                    {unreadCount > 99 ? "99+" : unreadCount}
                                 </span>
                             )}
                         </NavLink>

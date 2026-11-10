@@ -1,10 +1,20 @@
+
 import { NavLink, Outlet } from "react-router-dom";
-import { Bell, Truck } from "lucide-react";
-import { driverNavItems } from "../components/driver/driverSidebar";
-import DriverSidebar from "../components/driver/driverSidebar";
+import { Bell, Truck, UserRound } from "lucide-react";
+import { driverNavItems } from "../components/driver/DriverSidebar";
+import DriverSidebar from "../components/driver/DriverSidebar";
+import {
+  NotificationProvider,
+  useNotifications,
+} from "../context/NotificationContext";
 
+// Main layout content
+function DriverLayoutContent() {
+  const { unreadCount } = useNotifications();
 
-function DriverLayout() {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const driverName = user.name || "Driver";
+
   return (
     <div className="min-h-screen bg-[#f5f4fb] text-[#20213a] lg:flex">
       <DriverSidebar />
@@ -38,27 +48,33 @@ function DriverLayout() {
                 </span>
               </div>
 
+              {/* Notifications */}
               <NavLink
                 to="/driver/notifications"
-                aria-label="Notifications"
+                aria-label={`Notifications, ${unreadCount} unread`}
                 className="relative grid h-10 w-10 place-items-center rounded-xl border border-slate-100 text-slate-600 transition hover:bg-violet-50 hover:text-violet-700"
               >
                 <Bell className="h-[18px] w-[18px]" />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-rose-500" />
+
+                {unreadCount > 0 && (
+                  <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
               </NavLink>
 
               {/* Driver Profile */}
               <div className="flex items-center gap-2 rounded-full bg-[#f1edff] py-1 pl-1 pr-3">
-                <div className="grid h-8 w-8 place-items-center rounded-full bg-violet-200 text-xs font-bold text-violet-800">
-                  DR
+                <div className="grid h-8 w-8 place-items-center rounded-full bg-violet-200 text-violet-800">
+                  <UserRound className="h-4 w-4" />
                 </div>
 
                 <div className="hidden sm:block">
                   <p className="text-xs font-bold text-slate-800">
-                    Driver
+                    {driverName}
                   </p>
                   <p className="text-[10px] text-slate-500">
-                    Delivery Partner
+                    Driver
                   </p>
                 </div>
               </div>
@@ -97,6 +113,15 @@ function DriverLayout() {
         </main>
       </div>
     </div>
+  );
+}
+
+// Wrap layout content with NotificationProvider
+function DriverLayout() {
+  return (
+    <NotificationProvider>
+      <DriverLayoutContent />
+    </NotificationProvider>
   );
 }
 

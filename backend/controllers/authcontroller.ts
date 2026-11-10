@@ -319,6 +319,74 @@ export const resetDriverPassword: RequestHandler = async (req, res) => {
       });
    }
 };
+export const changePassword: RequestHandler = async (req, res) => {
+   try {
+      const userId = res.locals.authUser?.userId;
+      const { currentPassword, newPassword } = req.body;
+
+      if (!userId) {
+         res.status(401).json({
+            success: false,
+            message: "Authentication required",
+         });
+         return;
+      }
+
+      if (!currentPassword || !newPassword) {
+         res.status(400).json({
+            success: false,
+            message: "Both passwords are required",
+         });
+         return;
+      }
+
+      if (newPassword.length < 12) {
+         res.status(400).json({
+            success: false,
+            message: "New password must be at least 12 characters long",
+         });
+         return;
+      }
+
+      const user = await UserModel.findById(userId).select("+passwordHash");
+
+      if (!user) {
+         res.status(404).json({
+            success: false,
+            message: "User not found",
+         });
+         return;
+      }
+
+      const isPasswordValid = await bcrypt.compare(
+         currentPassword,
+         user.passwordHash
+      );
+
+      if (!isPasswordValid) {
+         res.status(400).json({
+            success: false,
+            message: "Current password is incorrect",
+         });
+         return;
+      }
+
+      user.passwordHash = await bcrypt.hash(newPassword, 12);
+      await user.save();
+
+      res.status(200).json({
+         success: true,
+         message: "Password updated successfully",
+      });
+   } catch (error) {
+      console.error("Change password error:", error);
+
+      res.status(500).json({
+         success: false,
+         message: "Failed to update password",
+      });
+   }
+};
 
 export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
    try {

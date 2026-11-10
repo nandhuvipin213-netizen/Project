@@ -41,14 +41,14 @@ const shipmentSchema = new Schema(
 
     weight: {
       type: Number,
-      required: true,
+      default: null,
       min: 0.1,
     },
 
     volume: {
       type: Number,
-      required: true,
-      min: 0.1,
+      default: 0,
+      min: 0,
     },
 
     isFragile: {
@@ -67,6 +67,61 @@ const shipmentSchema = new Schema(
         "cancelled",
       ],
       default: "pending",
+    },
+    goodsDescription: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    distanceKm: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    advanceRatePerKm: {
+      type: Number,
+      default: 5,
+      min: 0,
+    },
+
+    advanceAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    advancePaymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed"],
+      default: "pending",
+    },
+
+    advancePaidAt: {
+      type: Date,
+      default: null,
+    },
+
+    advancePaymentId: {
+      type: String,
+      default: null,
+    },
+
+    packageCount: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1,
+    },
+
+    pickupDate: {
+      type: Date,
+      required: true,
+    },
+
+    pickupTime: {
+      type: String,
+      required: true,
     },
     pickupCoordinates: {
       lat: {

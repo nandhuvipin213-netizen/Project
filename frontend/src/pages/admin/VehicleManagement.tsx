@@ -16,6 +16,7 @@ interface Vehicle {
   vehicleType: string;
   capacity: number;
   volumeCapacity: number;
+  startingPrice: number;
   status: "available" | "in-use" | "maintenance";
   isActive: boolean;
 }
@@ -24,6 +25,7 @@ interface VehicleForm {
   registrationNumber: string;
   vehicleType: string;
   capacity: string;
+  startingPrice: string;
   volumeCapacity: string;
 }
 
@@ -31,6 +33,7 @@ const initialForm: VehicleForm = {
   registrationNumber: "",
   vehicleType: "truck",
   capacity: "",
+  startingPrice: "",
   volumeCapacity: "",
 };
 
@@ -70,21 +73,22 @@ export default function VehicleManagement() {
     e.preventDefault();
     setError("");
 
-    const payload = {
-      registrationNumber: form.registrationNumber.trim().toUpperCase(),
-      vehicleType: form.vehicleType,
-      capacity: Number(form.capacity),
-      volumeCapacity: Number(form.volumeCapacity),
-    };
 
+   const payload = {
+  registrationNumber: form.registrationNumber.trim().toUpperCase(),
+  vehicleType: form.vehicleType,
+  capacity: Number(form.capacity),
+  volumeCapacity: Number(form.volumeCapacity),
+  startingPrice: Number(form.startingPrice),
+};
     try {
       if (editingId) {
         await api.put(`/vehicles/${editingId}`, payload);
       } else {
         await api.post("/vehicles", payload);
       }
-
-      setForm(initialForm);
+      startingPrice: Number(form.startingPrice),
+        setForm(initialForm);
       setEditingId(null);
       setShowForm(false);
       await fetchVehicles();
@@ -100,6 +104,7 @@ export default function VehicleManagement() {
       registrationNumber: vehicle.registrationNumber,
       vehicleType: vehicle.vehicleType,
       capacity: String(vehicle.capacity),
+      startingPrice: String(vehicle.startingPrice ?? 0),
       volumeCapacity: String(vehicle.volumeCapacity),
     });
     setShowForm(true);
@@ -223,13 +228,14 @@ export default function VehicleManagement() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[650px] text-left">
+            <table className="w-full min-w-[750px] text-left">
               <thead>
                 <tr className="border-b text-[10px] text-slate-400">
                   <th className="pb-3">VEHICLE</th>
                   <th className="pb-3">TYPE</th>
                   <th className="pb-3">CAPACITY</th>
                   <th className="pb-3">VOLUME</th>
+                  <th className="pb-3">STARTING PRICE</th>
                   <th className="pb-3">STATUS</th>
                   <th className="pb-3 text-right">ACTIONS</th>
                 </tr>
@@ -246,6 +252,7 @@ export default function VehicleManagement() {
                     </td>
                     <td className="py-4 text-xs">{vehicle.capacity}</td>
                     <td className="py-4 text-xs">{vehicle.volumeCapacity}</td>
+                    <td className="py-4 text-xs">{vehicle.startingPrice ?? 0} ₹</td>
                     <td className="py-4">
                       <span
                         className={`rounded-full px-3 py-1 text-[10px] font-semibold capitalize ${statusStyle[vehicle.status]}`}
@@ -355,7 +362,21 @@ export default function VehicleManagement() {
                   />
                 </div>
               </div>
-
+              <div>
+                <label className="mb-1 block text-xs font-semibold">
+                  Starting Price (₹)
+                </label>
+                <input
+                  type="number"
+                  name="startingPrice"
+                  value={form.startingPrice}
+                  onChange={handleChange}
+                  min="0"
+                  required
+                  placeholder="Enter starting price"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-violet-500"
+                />
+              </div>
               {error && (
                 <p className="text-xs text-rose-600">{error}</p>
               )}

@@ -104,6 +104,10 @@ function DriverDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isTracking, setIsTracking] = useState(false);
+  const [trackingMessage, setTrackingMessage] = useState(
+    "Location tracking is currently stopped"
+  );
 
   const driverName = getDriverName();
 
@@ -129,7 +133,7 @@ function DriverDashboard() {
           if (axios.isAxiosError(error)) {
             setError(
               error.response?.data?.message ||
-                "Unable to load dashboard data."
+              "Unable to load dashboard data."
             );
           } else {
             setError("Something went wrong.");
@@ -221,6 +225,65 @@ function DriverDashboard() {
       style: "bg-emerald-100 text-emerald-700",
     },
   ];
+  const startLocationTracking = () => {
+    if (!navigator.geolocation) {
+      setTrackingMessage("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    if (!localStorage.getItem("token")) {
+      setTrackingMessage("Please log in again.");
+      return;
+    }
+
+    setTrackingMessage("Requesting location permission...");
+
+    const watchId = navigator.geolocation.watchPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+
+          await api.put("/drivers/update-location", {
+            lat: latitude,
+            lng: longitude,
+          });
+
+          setIsTracking(true);
+          setTrackingMessage("Your live location is being shared.");
+        } catch (error) {
+          console.error("GPS update failed:", error);
+          setTrackingMessage("Unable to update your location.");
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        setIsTracking(false);
+        setTrackingMessage(error.message);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 15000,
+      }
+    );
+
+    // Store watch ID so we can stop tracking later.
+    (window as Window & { driverWatchId?: number }).driverWatchId = watchId;
+  };
+
+  const stopLocationTracking = () => {
+    const watchId = (
+      window as Window & { driverWatchId?: number }
+    ).driverWatchId;
+
+    if (watchId !== undefined) {
+      navigator.geolocation.clearWatch(watchId);
+      delete (window as Window & { driverWatchId?: number }).driverWatchId;
+    }
+
+    setIsTracking(false);
+    setTrackingMessage("Location tracking stopped.");
+  };
 
   return (
     <div className="space-y-6">
@@ -258,6 +321,39 @@ function DriverDashboard() {
           Refresh Dashboard
         </button>
       </div>
+
+      {/* Live GPS Tracking */}
+      <section className="rounded-2xl border border-violet-100 bg-white p-5 shadow-sm">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-violet-600" />
+              <h2 className="text-lg font-bold text-slate-800">
+                Live Vehicle Tracking
+              </h2>
+            </div>
+
+            <p className="mt-2 text-sm text-slate-500">
+              Share your current GPS location with the logistics system.
+            </p>
+
+            <p className="mt-2 text-xs font-medium text-slate-600">
+              {trackingMessage}
+            </p>
+          </div>
+
+          <button
+            onClick={isTracking ? stopLocationTracking : startLocationTracking}
+            className={`rounded-xl px-5 py-3 text-sm font-semibold text-white ${isTracking
+                ? "bg-rose-600 hover:bg-rose-700"
+                : "bg-violet-600 hover:bg-violet-700"
+              }`}
+          >
+            {isTracking ? "Stop Tracking" : "Start Tracking"}
+          </button>
+        </div>
+      </section>
+
 
       {/* Statistics */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

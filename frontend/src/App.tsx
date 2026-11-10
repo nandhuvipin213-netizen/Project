@@ -1,7 +1,4 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
-
-// import AdminLogin from "./pages/admin/AdminLogin";
-// import DriverLogin from "./pages/driver/DriverLogin";
 import CustomerLogin from "./pages/customer/CustomerLogin";
 import CustomerRegister from "./pages/customer/CustomerRegister";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
@@ -10,10 +7,19 @@ import AdminLayout from "./layouts/AdminLayout";
 import VehicleManagement from "./pages/admin/VehicleManagement";
 import AdminLogin from "./pages/admin/AdminLogin";
 import ShipmentManagement from "./pages/admin/ManageShipment";
-import DriverLayout from "./layouts/DriverLayout";
 import DriverDashboard from "./pages/driver/DriverDashboard";
 import DriverProtectedRoute from "./components/driver/DriverProtectedRoute";
 import MyShipments from "./pages/driver/MyShipment";
+import ActiveDelivery from "./pages/driver/ActiveDelivery";
+import DeliveryHistory from "./pages/driver/DeliveryHistory";
+import MyRoute from "./pages/driver/MyRoute";
+import DriverNotifications from "./pages/driver/DriverNotifications";
+import DriverProfile from "./pages/driver/DriverProfile";
+import DriverSettings from "./pages/driver/DriverSettings";
+import DriverLayoutContent from "./layouts/DriverLayout";
+import TrackShipment from "./pages/customer/TrackShipment";
+import BookShipment from "./pages/customer/BookShipment";
+import AdvancePayment from "./pages/customer/AdvancePayment";
 
 
 function Home() {
@@ -96,11 +102,18 @@ function App() {
         {/* Customer Authentication */}
         <Route path="/customer/login" element={<CustomerLogin />} />
         <Route path="/customer/register" element={<CustomerRegister />} />
+        {/* Customer Dashboard */}
+        <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+        <Route path="/customer/track-shipment" element={<TrackShipment />} />
+        <Route path="/customer/book-shipment" element={<BookShipment />} />
+        <Route path="/customer/advance-payment"element={<AdvancePayment />}
+         />
 
         {/* Customer Dashboard Layout */}
 
         <Route path="customer/dashboard" element={<CustomerDashboard />} />
 
+        {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
@@ -116,9 +129,15 @@ function App() {
 
         {/* Protected Driver Portal */}
         <Route element={<DriverProtectedRoute />}>
-          <Route path="/driver" element={<DriverLayout />}>
+          <Route path="/driver" element={<DriverLayoutContent />}>
             <Route path="dashboard" element={<DriverDashboard />} />
-                <Route path="shipments" element={<MyShipments />} />
+            <Route path="shipments" element={<MyShipments />} />
+            <Route path="active-delivery" element={<ActiveDelivery />} />
+            <Route path="history" element={<DeliveryHistory />} />
+            <Route path="route" element={<MyRoute />} />
+            <Route path="notifications" element={<DriverNotifications />} />
+            <Route path="profile" element={<DriverProfile />} />
+            <Route path="settings" element={<DriverSettings />} />
           </Route>
         </Route>
 
