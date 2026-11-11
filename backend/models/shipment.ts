@@ -78,7 +78,10 @@ const shipmentSchema = new Schema(
       default: 0,
       min: 0,
     },
-
+    advanceOrderId: {
+      type: String,
+      default: null,
+    },
     advanceRatePerKm: {
       type: Number,
       default: 5,

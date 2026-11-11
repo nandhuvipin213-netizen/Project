@@ -1,4 +1,5 @@
 import express from "express"
+import "dotenv/config";
 import cors from "cors"
 import dotenv from "dotenv"
 import connectDB from "./config/db.js";
@@ -14,7 +15,13 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 dotenv.config();
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(
+    express.json({
+        verify: (req, res, buf) => {
+            (req as any).rawBody = Buffer.from(buf);
+        },
+    })
+);
 
 app.use("/api/auth",authRoutes)
 app.use("/api/test",testRoutes)

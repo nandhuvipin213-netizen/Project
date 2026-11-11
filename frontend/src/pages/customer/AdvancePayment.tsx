@@ -1,6 +1,33 @@
-
+import api from "../../services/Api";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MapPin, Package, IndianRupee, ArrowLeft } from "lucide-react";
+
+interface RazorpayOptions {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    handler: (response: {
+        razorpay_payment_id: string;
+        razorpay_order_id: string;
+        razorpay_signature: string;
+    }) => void;
+    theme?: {
+        color: string;
+    };
+}
+
+interface RazorpayInstance {
+    open: () => void;
+}
+
+declare global {
+    interface Window {
+        Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+    }
+}
 
 function AdvancePayment() {
     const { state } = useLocation();
@@ -23,6 +50,68 @@ function AdvancePayment() {
             </div>
         );
     }
+
+    const handlePayment = async () => {
+        try {
+            if (!shipment?._id) {
+                alert("Shipment details not found");
+                return;
+            }
+
+            // Step 1: Create Razorpay order through backend
+            const response = await api.post("/shipments/advance-order", {
+                shipmentId: shipment._id,
+            });
+
+            const { order, key } = response.data;
+
+            // Step 2: Configure Razorpay Checkout
+            const options: RazorpayOptions = {
+                key,
+                amount: order.amount,
+                currency: order.currency,
+                name: "Smart Logistics",
+                description: "Shipment Advance Payment",
+                order_id: order.id,
+                handler: async (paymentResponse) => {
+                    try {
+                        const verifyResponse = await api.post(
+                            "/shipments/verify-advance-payment",
+                            {
+                                shipmentId: shipment._id,
+                                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                                razorpay_order_id: paymentResponse.razorpay_order_id,
+                                razorpay_signature: paymentResponse.razorpay_signature,
+                            }
+                        );
+
+                        if (verifyResponse.data.success) {
+                            alert("Advance payment successful!");
+
+                            navigate("/customer/dashboard");
+                        }
+                    } catch (error) {
+                        console.error("Payment verification error:", error);
+                        alert(
+                            "Payment received, but verification failed. Please contact support."
+                        );
+                    }
+                },
+
+                theme: {
+                    color: "#2563eb",
+                },
+            };
+
+            // Step 3: Open Razorpay payment window
+            const razorpay = new window.Razorpay(options);
+            razorpay.open();
+
+        } catch (error) {
+            console.error("Payment error:", error);
+            alert("Unable to start payment. Please try again.");
+        }
+    };
 
     return (
         <div className="mx-auto max-w-3xl p-6">
@@ -97,8 +186,8 @@ function AdvancePayment() {
                 </div>
 
                 <button
-                    disabled
-                    className="mt-8 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white opacity-60"
+                    onClick={handlePayment}
+                    className="mt-8 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 transition"
                 >
                     <IndianRupee size={18} />
                     Pay Advance

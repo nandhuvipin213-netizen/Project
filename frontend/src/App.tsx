@@ -20,6 +20,8 @@ import DriverLayoutContent from "./layouts/DriverLayout";
 import TrackShipment from "./pages/customer/TrackShipment";
 import BookShipment from "./pages/customer/BookShipment";
 import AdvancePayment from "./pages/customer/AdvancePayment";
+import ShipmentHistory from "./pages/customer/ShipmentHistory";
+import MyProfile from "./pages/customer/MyProfile";
 
 
 function Home() {
@@ -106,8 +108,9 @@ function App() {
         <Route path="/customer/dashboard" element={<CustomerDashboard />} />
         <Route path="/customer/track-shipment" element={<TrackShipment />} />
         <Route path="/customer/book-shipment" element={<BookShipment />} />
-        <Route path="/customer/advance-payment"element={<AdvancePayment />}
-         />
+        <Route path="/customer/advance-payment" element={<AdvancePayment />} />
+        <Route path="/customer/history" element={<ShipmentHistory />} />
+        <Route path="/customer/profile" element={<MyProfile />} />
 
         {/* Customer Dashboard Layout */}
 

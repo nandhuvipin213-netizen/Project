@@ -388,6 +388,94 @@ export const changePassword: RequestHandler = async (req, res) => {
    }
 };
 
+export const getProfile: RequestHandler = async (req, res) => {
+    try {
+        const userId = res.locals.authUser?.userId;
+
+        const user = await UserModel.findById(userId).select(
+            "name email phone role"
+        );
+
+        if (!user) {
+            res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+            return;
+        }
+
+        res.status(200).json({
+            success: true,
+            user,
+        });
+    } catch (error) {
+        console.error("Get profile error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve profile",
+        });
+    }
+};
+
+
+export const updateProfile: RequestHandler = async (req, res) => {
+    try {
+        const userId = res.locals.authUser?.userId;
+        const { name, email, phone } = req.body;
+
+        if (!name || !email || !phone) {
+            res.status(400).json({
+                success: false,
+                message: "All fields are required",
+            });
+            return;
+        }
+
+        const existingUser = await UserModel.findOne({
+            email: email.toLowerCase().trim(),
+            _id: { $ne: userId },
+        });
+
+        if (existingUser) {
+            res.status(409).json({
+                success: false,
+                message: "Email is already registered",
+            });
+            return;
+        }
+
+        const user = await UserModel.findByIdAndUpdate(
+            userId,
+            {
+                name: name.trim(),
+                email: email.toLowerCase().trim(),
+                phone: phone.trim(),
+            },
+            { new: true, runValidators: true }
+        ).select("name email phone role");
+
+        if (!user) {
+            res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+            return;
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user,
+        });
+    } catch (error) {
+        console.error("Update profile error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to update profile",
+        });
+    }
+};
+
 export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
    try {
       const { id } = req.params
