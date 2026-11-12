@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import { json } from "node:stream/consumers";
 import type { RequestHandler } from "express";
 import shipmentModel from "../models/shipment.js";
+import { randomBytes } from "node:crypto";
+import { sendDriverCredentialsEmail } from "../config/email.js";
 
 
 export const registerUser = async (req: Request, res: Response) => {
@@ -55,7 +57,8 @@ export const registerUser = async (req: Request, res: Response) => {
             name: user.name,
             email: user.email,
             phone: user.phone,
-            role: user.role
+            role: user.role,
+            mustChangePassword: user.mustChangePassword
          }
       })
    }
@@ -125,7 +128,8 @@ export const loginUser = async (req: Request, res: Response) => {
             id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role
+            role: user.role,
+            mustChangePassword: user.mustChangePassword
          }
       })
    }
@@ -208,31 +212,30 @@ export const createAdminUser = async (req: Request, res: Response) => {
 }
 
 
+
 export const createDriver = async (
    req: Request,
    res: Response
 ) => {
    try {
-      const { name, email, password } = req.body;
+      const { name, email, phone } = req.body;
 
       if (
          typeof name !== "string" ||
          typeof email !== "string" ||
-         typeof password !== "string" ||
+         typeof phone !== "string" ||
          !name.trim() ||
          !email.trim() ||
-         password.length < 12
+         !phone.trim()
       ) {
          res.status(400).json({
             success: false,
-            message:
-               "Provide a name, email, and password of at least 12 characters",
+            message: "Name, email and phone are required",
          });
          return;
       }
 
       const normalizedEmail = email.trim().toLowerCase();
-
 
       const existingUser = await UserModel.findOne({
          email: normalizedEmail,
@@ -246,27 +249,54 @@ export const createDriver = async (
          return;
       }
 
+      // Generate a secure temporary password
+      const temporaryPassword = randomBytes(18).toString("base64url");
 
-      const passwordHash = await bcrypt.hash(password, 12);
+      // Hash the temporary password
+      const passwordHash = await bcrypt.hash(temporaryPassword, 12);
 
-
+      // Create driver account
       const driver = await UserModel.create({
          name: name.trim(),
          email: normalizedEmail,
+         phone: phone.trim(),
          passwordHash,
          role: "driver",
+         mustChangePassword: true,
       });
+
+      // Send login credentials to driver's email
+      try {
+         await sendDriverCredentialsEmail(
+            driver.name,
+            driver.email,
+            temporaryPassword
+         );
+      } catch (emailError) {
+         console.error("Driver email delivery failed:", emailError);
+
+         // Remove account if email delivery fails
+         await UserModel.deleteOne({ _id: driver._id });
+
+         res.status(502).json({
+            success: false,
+            message: "Driver account was not created because the email could not be sent. Please try again.",
+         });
+         return;
+      }
 
       res.status(201).json({
          success: true,
-         message: "Driver account created successfully",
+         message: "Driver account created and login credentials sent successfully",
          user: {
             id: driver._id,
             name: driver.name,
             email: driver.email,
+            phone: driver.phone,
             role: driver.role,
          },
       });
+
    } catch (error) {
       console.error("Driver creation failed:", error);
 
@@ -276,6 +306,7 @@ export const createDriver = async (
       });
    }
 };
+
 
 export const resetDriverPassword: RequestHandler = async (req, res) => {
    try {
@@ -372,6 +403,9 @@ export const changePassword: RequestHandler = async (req, res) => {
       }
 
       user.passwordHash = await bcrypt.hash(newPassword, 12);
+      if (user.role === "driver") {
+         user.mustChangePassword = false;
+      }
       await user.save();
 
       res.status(200).json({
@@ -389,91 +423,91 @@ export const changePassword: RequestHandler = async (req, res) => {
 };
 
 export const getProfile: RequestHandler = async (req, res) => {
-    try {
-        const userId = res.locals.authUser?.userId;
+   try {
+      const userId = res.locals.authUser?.userId;
 
-        const user = await UserModel.findById(userId).select(
-            "name email phone role"
-        );
+      const user = await UserModel.findById(userId).select(
+         "name email phone role"
+      );
 
-        if (!user) {
-            res.status(404).json({
-                success: false,
-                message: "User not found",
-            });
-            return;
-        }
-
-        res.status(200).json({
-            success: true,
-            user,
-        });
-    } catch (error) {
-        console.error("Get profile error:", error);
-        res.status(500).json({
+      if (!user) {
+         res.status(404).json({
             success: false,
-            message: "Failed to retrieve profile",
-        });
-    }
+            message: "User not found",
+         });
+         return;
+      }
+
+      res.status(200).json({
+         success: true,
+         user,
+      });
+   } catch (error) {
+      console.error("Get profile error:", error);
+      res.status(500).json({
+         success: false,
+         message: "Failed to retrieve profile",
+      });
+   }
 };
 
 
 export const updateProfile: RequestHandler = async (req, res) => {
-    try {
-        const userId = res.locals.authUser?.userId;
-        const { name, email, phone } = req.body;
+   try {
+      const userId = res.locals.authUser?.userId;
+      const { name, email, phone } = req.body;
 
-        if (!name || !email || !phone) {
-            res.status(400).json({
-                success: false,
-                message: "All fields are required",
-            });
-            return;
-        }
-
-        const existingUser = await UserModel.findOne({
-            email: email.toLowerCase().trim(),
-            _id: { $ne: userId },
-        });
-
-        if (existingUser) {
-            res.status(409).json({
-                success: false,
-                message: "Email is already registered",
-            });
-            return;
-        }
-
-        const user = await UserModel.findByIdAndUpdate(
-            userId,
-            {
-                name: name.trim(),
-                email: email.toLowerCase().trim(),
-                phone: phone.trim(),
-            },
-            { new: true, runValidators: true }
-        ).select("name email phone role");
-
-        if (!user) {
-            res.status(404).json({
-                success: false,
-                message: "User not found",
-            });
-            return;
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Profile updated successfully",
-            user,
-        });
-    } catch (error) {
-        console.error("Update profile error:", error);
-        res.status(500).json({
+      if (!name || !email || !phone) {
+         res.status(400).json({
             success: false,
-            message: "Failed to update profile",
-        });
-    }
+            message: "All fields are required",
+         });
+         return;
+      }
+
+      const existingUser = await UserModel.findOne({
+         email: email.toLowerCase().trim(),
+         _id: { $ne: userId },
+      });
+
+      if (existingUser) {
+         res.status(409).json({
+            success: false,
+            message: "Email is already registered",
+         });
+         return;
+      }
+
+      const user = await UserModel.findByIdAndUpdate(
+         userId,
+         {
+            name: name.trim(),
+            email: email.toLowerCase().trim(),
+            phone: phone.trim(),
+         },
+         { new: true, runValidators: true }
+      ).select("name email phone role");
+
+      if (!user) {
+         res.status(404).json({
+            success: false,
+            message: "User not found",
+         });
+         return;
+      }
+
+      res.status(200).json({
+         success: true,
+         message: "Profile updated successfully",
+         user,
+      });
+   } catch (error) {
+      console.error("Update profile error:", error);
+      res.status(500).json({
+         success: false,
+         message: "Failed to update profile",
+      });
+   }
 };
 
 export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {

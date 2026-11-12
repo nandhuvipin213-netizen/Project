@@ -22,6 +22,8 @@ import BookShipment from "./pages/customer/BookShipment";
 import AdvancePayment from "./pages/customer/AdvancePayment";
 import ShipmentHistory from "./pages/customer/ShipmentHistory";
 import MyProfile from "./pages/customer/MyProfile";
+import ChangePassword from "./pages/driver/ChangePassword";
+import DriverManagement from "./pages/admin/ManageDriver";
 
 
 function Home() {
@@ -122,6 +124,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="vehicles" element={<VehicleManagement />} />
           <Route path="shipments" element={<ShipmentManagement />} />
+          <Route path="drivers" element={<DriverManagement />} />
         </Route>
 
         {/* Old login URL redirects to the single Driver Portal URL */}
@@ -132,6 +135,14 @@ function App() {
 
         {/* Protected Driver Portal */}
         <Route element={<DriverProtectedRoute />}>
+
+          {/* First login password change */}
+          <Route
+            path="/driver/change-password"
+            element={<ChangePassword />}
+          />
+
+          {/* Normal Driver Portal */}
           <Route path="/driver" element={<DriverLayoutContent />}>
             <Route path="dashboard" element={<DriverDashboard />} />
             <Route path="shipments" element={<MyShipments />} />

@@ -54,10 +54,16 @@ function DriverLogin({ onLoginSuccess }: DriverLoginProps) {
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(user));
 
+
             // Notify the protected route that login succeeded
             onLoginSuccess?.();
 
-            navigate("/driver/dashboard", { replace: true });
+            // Check whether the driver must change the temporary password
+            if (user.mustChangePassword) {
+                navigate("/driver/change-password", { replace: true });
+            } else {
+                navigate("/driver/dashboard", { replace: true });
+            }
 
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {

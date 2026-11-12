@@ -1,4 +1,5 @@
-
+import { randomBytes } from "node:crypto";
+import { sendDriverCredentialsEmail } from "../config/email.js";
 import type { RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import UserModel from "../models/user.js";
@@ -6,109 +7,126 @@ import DriverModel from "../models/driver.js";
 import shipmentModel from "../models/shipment.js";
 import vehicleLocationModel from "../models/vehicleLocation.js";
 // CREATE DRIVER
+
 export const createDriver: RequestHandler = async (req, res) => {
-  try {
-    const {
-      name,
-      email,
-      phone,
-      password,
-      licenseNumber,
-      licenseExpiryDate,
-      address,
-    } = req.body;
-
-    // Validate required fields
-    if (
-      !name ||
-      !email ||
-      !phone ||
-      !password ||
-      !licenseNumber ||
-      !licenseExpiryDate ||
-      !address
-    ) {
-      res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-      return;
-    }
-
-    // Check existing email
-    const existingUser = await UserModel.findOne({
-      email: email.toLowerCase(),
-    });
-
-    if (existingUser) {
-      res.status(409).json({
-        success: false,
-        message: "Email already exists",
-      });
-      return;
-    }
-
-    // Check existing license
-    const existingDriver = await DriverModel.findOne({
-      licenseNumber: licenseNumber.toUpperCase(),
-    });
-
-    if (existingDriver) {
-      res.status(409).json({
-        success: false,
-        message: "License number already exists",
-      });
-      return;
-    }
-
-    // Hash password
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    // Create driver user account
-    const user = await UserModel.create({
-      name,
-      email,
-      phone,
-      passwordHash,
-      role: "driver",
-    });
+    let createdUserId: any = null;
+    let createdDriverId: any = null;
 
     try {
-      // Create driver profile
-      const driver = await DriverModel.create({
-        user: user._id,
-        licenseNumber,
-        licenseExpiryDate,
-        address,
-      });
+        const {
+            name,
+            email,
+            phone,
+            licenseNumber,
+            licenseExpiryDate,
+            address,
+        } = req.body;
 
-      res.status(201).json({
-        success: true,
-        message: "Driver created successfully",
-        driver: {
-          id: driver._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          licenseNumber: driver.licenseNumber,
-          licenseExpiryDate: driver.licenseExpiryDate,
-          address: driver.address,
-          availabilityStatus: driver.availabilityStatus,
-        },
-      });
+        if (
+            !name?.trim() ||
+            !email?.trim() ||
+            !phone?.trim() ||
+            !licenseNumber?.trim() ||
+            !licenseExpiryDate ||
+            !address?.trim()
+        ) {
+            res.status(400).json({
+                success: false,
+                message: "All fields are required",
+            });
+            return;
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedLicense = licenseNumber.trim().toUpperCase();
+
+        const existingUser = await UserModel.findOne({
+            email: normalizedEmail,
+        });
+
+        if (existingUser) {
+            res.status(409).json({
+                success: false,
+                message: "Email already exists",
+            });
+            return;
+        }
+
+        const existingDriver = await DriverModel.findOne({
+            licenseNumber: normalizedLicense,
+        });
+
+        if (existingDriver) {
+            res.status(409).json({
+                success: false,
+                message: "License number already exists",
+            });
+            return;
+        }
+
+        const temporaryPassword = randomBytes(18).toString("base64url");
+
+        const passwordHash = await bcrypt.hash(temporaryPassword, 12);
+
+        const user = await UserModel.create({
+            name: name.trim(),
+            email: normalizedEmail,
+            phone: phone.trim(),
+            passwordHash,
+            role: "driver",
+            mustChangePassword: true,
+        });
+
+        createdUserId = user._id;
+
+        const driver = await DriverModel.create({
+            user: user._id,
+            licenseNumber: normalizedLicense,
+            licenseExpiryDate,
+            address: address.trim(),
+        });
+
+        createdDriverId = driver._id;
+
+        await sendDriverCredentialsEmail(
+            user.name,
+            user.email,
+            temporaryPassword
+        );
+
+        res.status(201).json({
+            success: true,
+            message: "Driver created and login credentials sent successfully",
+            driver: {
+                id: driver._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                licenseNumber: driver.licenseNumber,
+                licenseExpiryDate: driver.licenseExpiryDate,
+                address: driver.address,
+                availabilityStatus: driver.availabilityStatus,
+                isActive: user.isActive,
+            },
+        });
+
     } catch (error) {
-      // Roll back user if profile creation fails
-      await UserModel.findByIdAndDelete(user._id);
-      throw error;
-    }
-  } catch (error) {
-    console.error("Create driver error:", error);
+        console.error("Create driver error:", error);
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to create driver",
-    });
-  }
+        // Roll back records if creation or email delivery fails
+        if (createdDriverId) {
+            await DriverModel.findByIdAndDelete(createdDriverId);
+        }
+
+        if (createdUserId) {
+            await UserModel.findByIdAndDelete(createdUserId);
+        }
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to create driver. Please try again.",
+        });
+    }
 };
 
 // GET ALL DRIVERS

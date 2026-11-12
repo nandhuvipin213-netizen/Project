@@ -3,6 +3,7 @@ import vehicleLocationModel from "../models/vehicleLocation.js";
 import VehicleModel from "../models/vehicle.js";
 import shipmentModel from "../models/shipment.js";
 import { isValidObjectId } from "mongoose";
+import UserModel from "../models/user.js";
 
 export const updateVehicleLocation: RequestHandler = async (req, res) => {
     try {
@@ -101,3 +102,52 @@ export const updateVehicleLocation: RequestHandler = async (req, res) => {
     });
   }
 }  
+
+
+
+export const getLatestVehicleLocations: RequestHandler = async (
+    req,
+    res
+) => {
+    try {
+        // Find all active vehicles currently in use
+        const vehicles = await VehicleModel.find({
+            isActive: true,
+            status: "in-use",
+        });
+
+        // Get the latest GPS location for each vehicle
+        const locations = await Promise.all(
+            vehicles.map(async (vehicle) => {
+                return await vehicleLocationModel
+                    .findOne({ vehicle: vehicle._id })
+                    .sort({ recordedAt: -1 })
+                    .populate("vehicle", "registrationNumber vehicleType")
+                    .populate("driver", "name email phone")
+                    .populate(
+                        "shipment",
+                        "status pickupAddress deliveryAddress"
+                    );
+            })
+        );
+
+        // Remove vehicles that have no GPS location yet
+        const activeLocations = locations.filter(
+            (location) => location !== null
+        );
+
+        res.status(200).json({
+            success: true,
+            count: activeLocations.length,
+            locations: activeLocations,
+        });
+
+    } catch (error) {
+        console.error("Get vehicle locations error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch vehicle locations",
+        });
+    }
+};

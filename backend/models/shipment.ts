@@ -184,6 +184,6 @@ const shipmentSchema = new Schema(
 
 export type Shipment = InferSchemaType<typeof shipmentSchema>;
 
-const shipmentModel = model("shipment", shipmentSchema);
+const shipmentModel = model("Shipment", shipmentSchema);
 
 export default shipmentModel;
