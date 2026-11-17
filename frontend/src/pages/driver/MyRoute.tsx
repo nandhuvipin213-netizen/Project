@@ -156,14 +156,6 @@ function MyRoute() {
         {!loading && !error && shipments.length > 0 && (
           <div className="min-w-0 space-y-5 sm:space-y-6">
             {shipments.map((shipment, index) => {
-              const hasCoordinates =
-                shipment.pickupCoordinates &&
-                shipment.deliveryCoordinates &&
-                Number.isFinite(shipment.pickupCoordinates.lat) &&
-                Number.isFinite(shipment.pickupCoordinates.lng) &&
-                Number.isFinite(shipment.deliveryCoordinates.lat) &&
-                Number.isFinite(shipment.deliveryCoordinates.lng);
-
               return (
                 <div
                   key={shipment._id}

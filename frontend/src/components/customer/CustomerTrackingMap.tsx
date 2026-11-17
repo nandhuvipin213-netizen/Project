@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import L from "leaflet";
 import { useMap } from "react-leaflet";
 import {
     MapContainer,
