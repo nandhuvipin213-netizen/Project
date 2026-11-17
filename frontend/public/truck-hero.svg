@@ -1,0 +1,261 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 120 1920 840" preserveAspectRatio="xMidYMid slice" xmlns:c2pa="http://c2pa.org/manifest">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#040814"/>
+      <stop offset="0.5" stop-color="#0c1f45"/>
+      <stop offset="0.8" stop-color="#5b2d5e"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fde68a" stop-opacity="0.95"/>
+      <stop offset="0.35" stop-color="#f59e0b" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14365e"/>
+      <stop offset="1" stop-color="#050d1d"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c2535"/>
+      <stop offset="1" stop-color="#03060f"/>
+    </linearGradient>
+    <linearGradient id="trailer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b4a63"/>
+      <stop offset="1" stop-color="#1b2538"/>
+    </linearGradient>
+    <linearGradient id="cab" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fde68a" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#fde68a" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="route" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="underglow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#22d3ee" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="dots" width="44" height="44" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.6" fill="#7dd3fc"/>
+    </pattern>
+    <pattern id="ridges" width="12" height="44" patternUnits="userSpaceOnUse">
+      <rect width="4" height="44" fill="#000" opacity="0.22"/>
+    </pattern>
+    <radialGradient id="dotFade" cx="0.5" cy="0.5" r="0.7">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="dotMask"><rect width="1920" height="770" fill="url(#dotFade)"/></mask>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
+
+    <!-- Wheel: spins only while the truck is actually moving (same timing as the truck) -->
+    <g id="wheel">
+      <circle r="44" fill="#070c18"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate"
+          values="0;1693;1693;3775" keyTimes="0;0.2;0.62;1"
+          calcMode="spline" keySplines="0.2 0.7 0.3 1;0 0 1 1;0.6 0 0.9 0.6"
+          dur="16s" repeatCount="indefinite"/>
+        <circle r="30" fill="#1b2538"/><circle r="20" fill="#475569"/><circle r="7" fill="#cbd5e1"/>
+        <g stroke="#94a3b8" stroke-width="3"><line x1="-18" y1="0" x2="18" y2="0"/><line x1="0" y1="-18" x2="0" y2="18"/></g>
+      </g>
+    </g>
+
+    <!-- The container the crane carries -->
+    <g id="box">
+      <rect x="-65" y="-22" width="130" height="44" fill="#d97706"/>
+      <rect x="-65" y="-22" width="130" height="44" fill="url(#ridges)"/>
+      <rect x="-65" y="-22" width="130" height="44" fill="none" stroke="#7c2d12" stroke-width="2"/>
+    </g>
+
+    <clipPath id="stackClip">
+      <rect x="90" y="861" width="130" height="44"/><rect x="226" y="861" width="130" height="44"/><rect x="362" y="861" width="130" height="44"/>
+      <rect x="120" y="817" width="130" height="44"/><rect x="256" y="817" width="130" height="44"/>
+    </clipPath>
+  </defs>
+
+  <!-- Sky + sun -->
+  <rect y="0" width="1920" height="1080" fill="url(#sky)"/>
+  <circle cx="1400" cy="770" r="440" fill="url(#sun)"/>
+
+  <!-- Stars -->
+  <g fill="#fff" opacity="0.75">
+    <circle cx="140" cy="150" r="2"/><circle cx="380" cy="200" r="1.6"/><circle cx="620" cy="140" r="2.2"/>
+    <circle cx="860" cy="170" r="1.5"/><circle cx="1100" cy="135" r="2"/><circle cx="1340" cy="130" r="1.8"/>
+    <circle cx="1580" cy="190" r="2.2"/><circle cx="1790" cy="145" r="1.6"/><circle cx="1860" cy="260" r="1.4"/>
+  </g>
+
+  <!-- Data-grid overlay -->
+  <rect width="1920" height="770" fill="url(#dots)" mask="url(#dotMask)" opacity="0.25"/>
+
+  <!-- Optimised route network in the sky -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M300 340 Q 530 150 760 230 T 1250 300 T 1660 180" stroke="url(#route)" stroke-width="10" opacity="0.18" filter="url(#glow)"/>
+    <path d="M300 340 Q 530 150 760 230 T 1250 300 T 1660 180" stroke="url(#route)" stroke-width="3" stroke-dasharray="14 12">
+      <animate attributeName="stroke-dashoffset" from="0" to="-52" dur="1.6s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  <g>
+    <g transform="translate(300 340)"><circle r="10" fill="#22d3ee"/>
+      <circle r="10" fill="none" stroke="#22d3ee" stroke-width="2"><animate attributeName="r" values="10;34" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="2.4s" repeatCount="indefinite"/></circle></g>
+    <g transform="translate(760 230)"><circle r="10" fill="#fff"/>
+      <circle r="10" fill="none" stroke="#fff" stroke-width="2"><animate attributeName="r" values="10;34" dur="2.4s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="2.4s" begin="0.6s" repeatCount="indefinite"/></circle></g>
+    <g transform="translate(1250 300)"><circle r="10" fill="#22d3ee"/>
+      <circle r="10" fill="none" stroke="#22d3ee" stroke-width="2"><animate attributeName="r" values="10;34" dur="2.4s" begin="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="2.4s" begin="1.2s" repeatCount="indefinite"/></circle></g>
+    <g transform="translate(1660 180)"><circle r="12" fill="#f59e0b"/>
+      <circle r="12" fill="none" stroke="#f59e0b" stroke-width="2"><animate attributeName="r" values="12;40" dur="2.4s" begin="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0" dur="2.4s" begin="1.8s" repeatCount="indefinite"/></circle></g>
+  </g>
+
+  <!-- Sea with sun reflection -->
+  <rect y="770" width="1920" height="136" fill="url(#sea)"/>
+  <g fill="#fbbf24" opacity="0.35">
+    <rect x="1330" y="782" width="150" height="4" rx="2"/><rect x="1300" y="796" width="210" height="4" rx="2"/>
+    <rect x="1350" y="812" width="130" height="4" rx="2"/><rect x="1280" y="830" width="240" height="4" rx="2"/>
+    <rect x="1340" y="850" width="160" height="4" rx="2"/><rect x="1310" y="872" width="200" height="4" rx="2"/>
+  </g>
+
+  <!-- Cargo ship on the horizon -->
+  <g>
+    <path d="M1000 748 H1430 L1398 786 H1036 Z" fill="#070d1f"/>
+    <rect x="1360" y="696" width="48" height="52" fill="#0a1228"/>
+    <rect x="1372" y="710" width="24" height="8" fill="#fbbf24" opacity="0.8"/>
+    <g opacity="0.95">
+      <rect x="1030" y="716" width="60" height="32" fill="#b45309"/><rect x="1092" y="716" width="60" height="32" fill="#0e7490"/>
+      <rect x="1154" y="716" width="60" height="32" fill="#9f1239"/><rect x="1216" y="716" width="60" height="32" fill="#1d4ed8"/>
+      <rect x="1278" y="716" width="60" height="32" fill="#b45309"/>
+      <rect x="1060" y="684" width="60" height="32" fill="#1d4ed8"/><rect x="1122" y="684" width="60" height="32" fill="#b45309"/>
+      <rect x="1184" y="684" width="60" height="32" fill="#0e7490"/>
+    </g>
+  </g>
+
+  <!-- Gantry crane structure (behind the truck) -->
+  <g stroke="#060b1a" stroke-linecap="square" fill="none">
+    <line x1="150" y1="905" x2="170" y2="410" stroke-width="16"/>
+    <line x1="340" y1="905" x2="320" y2="410" stroke-width="16"/>
+    <line x1="170" y1="410" x2="245" y2="330" stroke-width="9"/>
+    <line x1="320" y1="410" x2="245" y2="330" stroke-width="9"/>
+    <line x1="60" y1="420" x2="900" y2="420" stroke-width="18"/>
+    <line x1="245" y1="330" x2="60" y2="420" stroke-width="3"/>
+    <line x1="245" y1="330" x2="900" y2="420" stroke-width="3"/>
+    <line x1="170" y1="760" x2="320" y2="620" stroke-width="5"/><line x1="320" y1="760" x2="170" y2="620" stroke-width="5"/>
+    <line x1="170" y1="620" x2="320" y2="480" stroke-width="5"/><line x1="320" y1="620" x2="170" y2="480" stroke-width="5"/>
+  </g>
+  <circle cx="900" cy="420" r="6" fill="#ef4444"><animate attributeName="opacity" values="1;0.15;1" dur="1.6s" repeatCount="indefinite"/></circle>
+  <circle cx="60" cy="420" r="6" fill="#ef4444"><animate attributeName="opacity" values="0.15;1;0.15" dur="1.6s" repeatCount="indefinite"/></circle>
+  <circle cx="245" cy="322" r="6" fill="#ef4444"><animate attributeName="opacity" values="1;0.15;1" dur="1.6s" repeatCount="indefinite"/></circle>
+
+  <!-- Container stack (top container is the animated one) -->
+  <g transform="translate(-60 0)">
+    <rect x="90" y="861" width="130" height="44" fill="#b45309"/><rect x="226" y="861" width="130" height="44" fill="#0e7490"/><rect x="362" y="861" width="130" height="44" fill="#9f1239"/>
+    <rect x="120" y="817" width="130" height="44" fill="#1d4ed8"/><rect x="256" y="817" width="130" height="44" fill="#b45309"/>
+    <rect x="90" y="773" width="402" height="132" fill="url(#ridges)" clip-path="url(#stackClip)"/>
+    <rect x="90" y="773" width="402" height="132" fill="#030712" opacity="0.28" clip-path="url(#stackClip)"/>
+  </g>
+
+  <!-- Road -->
+  <rect y="905" width="1920" height="175" fill="url(#road)"/>
+  <rect y="903" width="1920" height="4" fill="#2b3a52"/>
+  <line x1="0" y1="945" x2="1920" y2="945" stroke="#f59e0b" stroke-width="6" stroke-dasharray="90 70" opacity="0.7"/>
+
+  <!-- ================= TRUCK: drives in, waits for loading, drives off ================= -->
+  <g>
+    <animateTransform attributeName="transform" type="translate"
+      values="-1300 0;0 0;0 0;1600 0" keyTimes="0;0.2;0.62;1"
+      calcMode="spline" keySplines="0.2 0.7 0.3 1;0 0 1 1;0.6 0 0.9 0.6"
+      dur="16s" repeatCount="indefinite"/>
+
+    <!-- Truck body, shifted left so it parks under the crane boom -->
+    <g transform="translate(-560 0)">
+      <!-- speed trails, only while moving -->
+      <g stroke="#fff" stroke-linecap="round" opacity="0.14">
+        <animate attributeName="opacity" values="0.14;0.14;0;0;0.14;0.14" keyTimes="0;0.14;0.2;0.62;0.68;1" dur="16s" repeatCount="indefinite"/>
+        <line x1="560" y1="930" x2="960" y2="930" stroke-width="3"/>
+        <line x1="700" y1="960" x2="980" y2="960" stroke-width="2"/>
+      </g>
+
+      <!-- Headlight beam -->
+      <polygon points="1666,772 1920,680 1920,890" fill="url(#beam)"/>
+
+      <!-- Shadow + underglow -->
+      <ellipse cx="1330" cy="932" rx="410" ry="16" fill="#000" opacity="0.55" filter="url(#soft)"/>
+      <rect x="1000" y="918" width="720" height="10" fill="url(#underglow)" opacity="0.8" filter="url(#glow)"/>
+
+      <!-- Trailer -->
+      <rect x="1000" y="590" width="470" height="260" rx="12" fill="url(#trailer)"/>
+      <rect x="1000" y="590" width="470" height="8" rx="4" fill="#94a3b8" opacity="0.4"/>
+      <g stroke="#0b1220" stroke-width="3" opacity="0.5">
+        <line x1="1090" y1="598" x2="1090" y2="850"/><line x1="1180" y1="598" x2="1180" y2="850"/>
+        <line x1="1270" y1="598" x2="1270" y2="850"/><line x1="1360" y1="598" x2="1360" y2="850"/>
+      </g>
+      <g transform="translate(1235 715)" fill="none" stroke-linecap="round">
+        <rect x="-210" y="-58" width="420" height="116" rx="10" fill="#0b1220" opacity="0.55"/>
+        <path d="M-150 22 C-90 -40 -40 40 20 -10 S110 -30 150 -22" stroke="#22d3ee" stroke-width="5" stroke-dasharray="2 12"/>
+        <circle cx="-150" cy="22" r="11" fill="#22d3ee"/>
+        <circle cx="150" cy="-22" r="13" fill="#f59e0b"/>
+        <circle cx="20" cy="-10" r="7" fill="#fff"/>
+      </g>
+      <rect x="1000" y="800" width="470" height="8" fill="#f59e0b" opacity="0.9"/>
+
+      <!-- Chassis -->
+      <rect x="1000" y="850" width="660" height="20" fill="#080d1b"/>
+
+      <!-- Cab -->
+      <rect x="1486" y="525" width="10" height="105" rx="3" fill="#94a3b8"/>
+      <path d="M1480 850 V650 Q1480 624 1506 624 H1580 Q1602 624 1614 644 L1652 722 Q1662 738 1662 756 V850 Z" fill="url(#cab)"/>
+      <path d="M1508 654 H1578 L1622 728 H1508 Z" fill="#e0f2fe" opacity="0.85"/>
+      <path d="M1508 654 H1540 L1520 728 H1508 Z" fill="#fff" opacity="0.25"/>
+      <rect x="1480" y="792" width="190" height="8" fill="#0c4a6e" opacity="0.6"/>
+      <rect x="1650" y="806" width="22" height="46" rx="4" fill="#080d1b"/>
+      <circle cx="1658" cy="772" r="22" fill="#fde68a" opacity="0.25"/>
+      <circle cx="1658" cy="772" r="10" fill="#fef3c7"/>
+      <rect x="1480" y="614" width="150" height="6" rx="3" fill="#f59e0b"/>
+      <g fill="#f59e0b"><circle cx="1500" cy="608" r="3"/><circle cx="1530" cy="608" r="3"/><circle cx="1560" cy="608" r="3"/><circle cx="1590" cy="608" r="3"/></g>
+
+      <!-- Wheels -->
+      <use href="#wheel" x="1090" y="880"/>
+      <use href="#wheel" x="1170" y="880"/>
+      <use href="#wheel" x="1260" y="880"/>
+      <use href="#wheel" x="1550" y="880"/>
+      <use href="#wheel" x="1620" y="880"/>
+    </g>
+
+    <!-- Container once it has been placed on the trailer (rides away with the truck) -->
+    <g transform="translate(705 568)">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.48;0.5;1" dur="16s" repeatCount="indefinite"/>
+      <use href="#box"/>
+    </g>
+  </g>
+
+  <!-- ================= CRANE TROLLEY + CONTAINER (in front of the truck) ================= -->
+  <!-- Container being carried: stack -> lift -> over trailer -> lower -> release -->
+  <g>
+    <animateTransform attributeName="transform" type="translate"
+      values="195 795;195 795;195 480;705 480;705 568;705 568;705 568;195 795;195 795;195 795"
+      keyTimes="0;0.10;0.22;0.38;0.48;0.50;0.62;0.63;0.80;1" dur="16s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1;1;1;1;1;0;0;0;1;1"
+      keyTimes="0;0.10;0.22;0.38;0.48;0.50;0.62;0.63;0.80;1" dur="16s" repeatCount="indefinite"/>
+    <use href="#box"/>
+  </g>
+
+  <!-- Trolley that slides along the boom, with hoist cable -->
+  <g>
+    <animateTransform attributeName="transform" type="translate"
+      values="195 0;195 0;195 0;705 0;705 0;705 0;195 0;195 0;195 0;195 0"
+      keyTimes="0;0.10;0.22;0.38;0.48;0.50;0.62;0.63;0.80;1" dur="16s" repeatCount="indefinite"/>
+    <rect x="-30" y="428" width="60" height="18" rx="3" fill="#0b1020" stroke="#22d3ee" stroke-width="1.5"/>
+    <line x1="0" y1="446" x2="0" y2="773" stroke="#94a3b8" stroke-width="3">
+      <animate attributeName="y2" values="773;773;458;458;546;546;458;458;773;773"
+        keyTimes="0;0.10;0.22;0.38;0.48;0.50;0.62;0.63;0.80;1" dur="16s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="0" cy="773" r="7" fill="#f59e0b">
+      <animate attributeName="cy" values="773;773;458;458;546;546;458;458;773;773"
+        keyTimes="0;0.10;0.22;0.38;0.48;0.50;0.62;0.63;0.80;1" dur="16s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+<metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpjNTJiZWYxOC0wNmQ5LTRkY2EtYTc0My1iNjhkYTVkYjY4OTMAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaHzzANGc6SmOjsPAnV1EWv0AAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo3MTQwMmQ5Yy04MzdjLTQxZDgtOTJhZC04MTAxZWRkMzJkNzVscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoO9X/lCCY06ikF36e3rBfLQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg3TkKilNl6DcJ82JCydN7XXyyebgF1/QFoPFYKGNY2KekZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaCLzA5TJr7UZ55PtOsGe4MEAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYILdYJa7yHlKMQw5uhpNGV6Kk8mowTDaW29G3LDjegKKRZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GTxvZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmM1MmJlZjE4LTA2ZDktNGRjYS1hNzQzLWI2OGRhNWRiNjg5My9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmU1NDMxMjYwLWYwYTAtNDA3Zi04ZTQ3LTA3ZjdjZTE0YTgxYXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDdOQqKU2XoNwnzYkLJ03tdfLJ5uAXX9AWg8VgoY1jYp6JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggnLp0+wlYX/WCGVf4p/vqinXKwDkEQjrNFHzKj5I9MPiiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggTxPeyazjxxE0jhq43dBl+w9G2OVSUTwPVfzudtLNtyN0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQLlKJSEZIwizYoSERZSGkEbg8vcxcwpIBuVhBc36qZEVDT0icPHzmmB2btNeQpD5C1uUDRFh3BNeSpdXYg4tfzs=</c2pa:manifest></metadata></svg>

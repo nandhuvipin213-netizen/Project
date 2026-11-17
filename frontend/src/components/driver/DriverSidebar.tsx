@@ -1,3 +1,4 @@
+
 import { NavLink, useNavigate } from "react-router-dom";
 import { useNotifications } from "../../context/NotificationContext";
 import {
@@ -58,6 +59,7 @@ export const driverNavItems = [
 function DriverSidebar() {
     const navigate = useNavigate();
     const { unreadCount } = useNotifications();
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -67,19 +69,22 @@ function DriverSidebar() {
 
         navigate("/driver/dashboard", { replace: true });
     };
-    return (
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-[#11132f] text-white lg:flex">
-            {/* Logo */}
-            <div className="flex h-24 items-center gap-3 border-b border-white/10 px-6">
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
-                    <Truck className="h-6 w-6 text-white" />
-                </div>
 
+    return (
+        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col bg-[#11132f] text-white lg:flex">
+
+            {/* Logo */}
+            <div className="flex h-24 items-center border-b border-white/10 px-5">
                 <div>
-                    <h1 className="text-lg font-extrabold tracking-wide">
-                        Smart<span className="text-violet-400">Logistics.</span>
-                    </h1>
-                    <p className="text-xs text-slate-400">Driver Portal</p>
+                    <img
+                        src="/logo-full.svg"
+                        alt="Smart Logistics"
+                        className="h-12 w-auto max-w-[200px] object-contain"
+                    />
+
+                    <p className="mt-1 pl-1 text-xs text-slate-400">
+                        Driver Portal
+                    </p>
                 </div>
             </div>
 
@@ -98,9 +103,10 @@ function DriverSidebar() {
                             to={item.path}
                             end={item.path === "/driver/dashboard"}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${isActive
-                                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-950/30"
-                                    : "text-slate-300 hover:bg-white/10 hover:text-white"
+                                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+                                    isActive
+                                        ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-950/30"
+                                        : "text-slate-300 hover:bg-white/10 hover:text-white"
                                 }`
                             }
                         >
@@ -117,7 +123,7 @@ function DriverSidebar() {
                 })}
             </nav>
 
-            {/* Logout - will connect to driver authentication later */}
+            {/* Logout */}
             <div className="border-t border-white/10 p-4">
                 <button
                     type="button"

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import axios from "axios";
 import api from "../../services/Api";
@@ -56,13 +57,14 @@ function DriverSettings() {
     };
 
     return (
-        <div className="space-y-6">
-            <div>
+        <div className="w-full min-w-0 space-y-5 sm:space-y-6">
+            {/* Page Heading */}
+            <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-wider text-violet-600">
                     Driver Workspace
                 </p>
 
-                <h1 className="mt-2 text-2xl font-extrabold text-slate-800">
+                <h1 className="mt-2 text-xl font-extrabold text-slate-800 sm:text-2xl">
                     Settings
                 </h1>
 
@@ -70,67 +72,82 @@ function DriverSettings() {
                     Manage your account and security preferences.
                 </p>
             </div>
+
             {/* Change Password */}
-            <div className="rounded-2xl border border-violet-100 bg-white p-6 shadow-sm">
-                <h2 className="text-lg font-bold text-slate-800">
+            <div className="min-w-0 rounded-2xl border border-violet-100 bg-white p-4 shadow-sm sm:p-6">
+                <h2 className="text-base font-bold text-slate-800 sm:text-lg">
                     Change Password
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm leading-relaxed text-slate-500">
                     Update your account password regularly to keep your account secure.
                 </p>
 
-                <form onSubmit={handlePasswordChange} className="mt-6 space-y-5">
-                    <div>
+                <form
+                    onSubmit={handlePasswordChange}
+                    className="mt-5 max-w-2xl space-y-5 sm:mt-6"
+                >
+                    <div className="min-w-0">
                         <label className="mb-2 block text-sm font-semibold text-slate-700">
                             Current Password
                         </label>
+
                         <input
                             type="password"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
                             placeholder="Enter current password"
                             required
-                            className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                            autoComplete="current-password"
+                            className="w-full min-w-0 rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100 sm:px-4"
                         />
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                         <label className="mb-2 block text-sm font-semibold text-slate-700">
                             New Password
                         </label>
+
                         <input
                             type="password"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             placeholder="Enter new password"
                             required
-                            className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                            minLength={12}
+                            autoComplete="new-password"
+                            className="w-full min-w-0 rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100 sm:px-4"
                         />
+                        <p className="mt-1 text-xs text-slate-400">
+                            Minimum 12 characters.
+                        </p>
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                         <label className="mb-2 block text-sm font-semibold text-slate-700">
                             Confirm New Password
                         </label>
+
                         <input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Confirm new password"
                             required
-                            className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                            minLength={12}
+                            autoComplete="new-password"
+                            className="w-full min-w-0 rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100 sm:px-4"
                         />
                     </div>
 
                     {error && (
-                        <p className="rounded-lg bg-rose-50 p-3 text-sm text-rose-600">
+                        <p className="break-words rounded-lg bg-rose-50 p-3 text-sm text-rose-600">
                             {error}
                         </p>
                     )}
 
                     {message && (
-                        <p className="rounded-lg bg-green-50 p-3 text-sm text-green-700">
+                        <p className="break-words rounded-lg bg-green-50 p-3 text-sm text-green-700">
                             {message}
                         </p>
                     )}
@@ -138,7 +155,7 @@ function DriverSettings() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-full rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     >
                         {loading ? "Updating..." : "Update Password"}
                     </button>

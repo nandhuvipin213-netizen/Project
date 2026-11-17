@@ -563,7 +563,11 @@ export const updateDriverLocation: RequestHandler = async (req, res) => {
   try {
     const driverId = res.locals.authUser?.userId;
     const { lat, lng } = req.body;
-
+      console.log("GPS UPDATE RECEIVED:", {
+  driverId,
+  lat,
+  lng,
+});
     if (!driverId) {
       res.status(401).json({
         success: false,
@@ -616,6 +620,12 @@ export const updateDriverLocation: RequestHandler = async (req, res) => {
       assignedDriver: driverId,
       status: { $in: ["assigned", "picked-up", "in-transit"] },
     });
+    console.log("ACTIVE SHIPMENT:", activeShipment?._id);
+
+console.log(
+  "ASSIGNED VEHICLE:",
+  activeShipment?.assignedVehicle
+);
 
     // Save GPS history linked to the shipment and vehicle
     if (activeShipment && activeShipment.assignedVehicle) {
@@ -716,7 +726,7 @@ export const getMyDriverProfile: RequestHandler = async (req, res) => {
     }
 
     const driver = await DriverModel.findOne({ user: userId })
-      .populate("user", "name email role");
+      .populate("user", "name email phone role");
 
     if (!driver) {
       res.status(404).json({
@@ -736,6 +746,174 @@ export const getMyDriverProfile: RequestHandler = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch driver profile",
+    });
+  }
+};
+
+
+// UPDATE LOGGED-IN DRIVER PROFILE
+export const updateMyDriverProfile: RequestHandler = async (req, res) => {
+  try {
+    const userId = res.locals.authUser?.userId;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: "Driver authentication required",
+      });
+      return;
+    }
+
+    const {
+      name,
+      email,
+      phone,
+      licenseNumber,
+      licenseExpiryDate,
+      address,
+    } = req.body;
+
+    // Find the logged-in driver's profile only
+    const driver = await DriverModel.findOne({ user: userId });
+
+    if (!driver) {
+      res.status(404).json({
+        success: false,
+        message: "Driver profile not found",
+      });
+      return;
+    }
+
+    const user = await UserModel.findById(userId);
+
+    if (!user || user.role !== "driver") {
+      res.status(404).json({
+        success: false,
+        message: "Driver account not found",
+      });
+      return;
+    }
+
+    // Validate provided fields
+    if (
+      (name !== undefined && !name.trim()) ||
+      (email !== undefined && !email.trim()) ||
+      (phone !== undefined && !phone.trim()) ||
+      (licenseNumber !== undefined && !licenseNumber.trim()) ||
+      (address !== undefined && !address.trim())
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Profile fields cannot be empty",
+      });
+      return;
+    }
+
+    const normalizedEmail =
+      email !== undefined ? email.trim().toLowerCase() : user.email;
+
+    const normalizedLicense =
+      licenseNumber !== undefined
+        ? licenseNumber.trim().toUpperCase()
+        : driver.licenseNumber;
+
+    if (
+      email !== undefined &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address",
+      });
+      return;
+    }
+
+    // Check whether another account uses this email
+    if (email !== undefined && normalizedEmail !== user.email) {
+      const existingUser = await UserModel.findOne({
+        email: normalizedEmail,
+        _id: { $ne: user._id },
+      });
+
+      if (existingUser) {
+        res.status(409).json({
+          success: false,
+          message: "Email address is already in use",
+        });
+        return;
+      }
+    }
+
+    // Check whether another driver uses this license number
+    if (
+      licenseNumber !== undefined &&
+      normalizedLicense !== driver.licenseNumber
+    ) {
+      const existingDriver = await DriverModel.findOne({
+        licenseNumber: normalizedLicense,
+        _id: { $ne: driver._id },
+      });
+
+      if (existingDriver) {
+        res.status(409).json({
+          success: false,
+          message: "License number is already in use",
+        });
+        return;
+      }
+    }
+
+    // Validate license expiry date
+    let expiryDate: Date | undefined;
+
+    if (licenseExpiryDate !== undefined) {
+      expiryDate = new Date(licenseExpiryDate);
+
+      if (Number.isNaN(expiryDate.getTime())) {
+        res.status(400).json({
+          success: false,
+          message: "Please enter a valid license expiry date",
+        });
+        return;
+      }
+    }
+
+    // Update linked user information
+    if (name !== undefined) user.name = name.trim();
+    if (email !== undefined) user.email = normalizedEmail;
+    if (phone !== undefined) user.phone = phone.trim();
+
+    await user.save();
+
+    // Update driver information
+    if (licenseNumber !== undefined) {
+      driver.licenseNumber = normalizedLicense;
+    }
+
+    if (expiryDate !== undefined) {
+      driver.licenseExpiryDate = expiryDate;
+    }
+
+    if (address !== undefined) {
+      driver.address = address.trim();
+    }
+
+    await driver.save();
+
+    // Return updated profile with user information
+    await driver.populate("user", "name email phone role");
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      driver,
+    });
+  } catch (error) {
+    console.error("Update my driver profile error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update profile",
     });
   }
 };

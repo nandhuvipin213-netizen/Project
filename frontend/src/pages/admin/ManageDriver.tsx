@@ -1,4 +1,3 @@
-
 import { useState, useEffect, type FormEvent } from "react";
 import {
     UserPlus,
@@ -263,7 +262,7 @@ function ManageDriver() {
             )}
 
             {/* Add Driver Form */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+            <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 md:p-8">
 
                 <div className="mb-6">
                     <h2 className="text-lg font-semibold text-[#20213a]">
@@ -440,7 +439,7 @@ function ManageDriver() {
             </div>
 
             {/* Driver List */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+            <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 md:p-8">
 
                 <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
 
@@ -616,7 +615,7 @@ function ManageDriver() {
             {/* Edit Driver Modal */}
             {editingDriver && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+                    <div className="max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:p-6">
 
                         {/* Modal Header */}
                         <div className="mb-6 flex items-center justify-between">

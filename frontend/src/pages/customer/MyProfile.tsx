@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { User, Mail, Phone, Lock, Save } from "lucide-react";
 import api from "../../services/Api";
@@ -94,7 +93,7 @@ function MyProfile() {
     }
 
     return (
-        <div className="min-h-screen bg-[#f5f4fb] p-6 md:p-8">
+        <div>
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-[#20213a]">
                     My Profile
@@ -105,8 +104,8 @@ function MyProfile() {
             </div>
 
             {/* Profile Information */}
-            <div className="max-w-3xl rounded-xl bg-white p-6 shadow-sm">
-                <div className="mb-6 flex items-center justify-between">
+            <div className="max-w-3xl rounded-xl bg-white p-4 shadow-sm sm:p-6">
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                     <h2 className="text-lg font-semibold text-[#20213a]">
                         Personal Information
                     </h2>
@@ -176,7 +175,7 @@ function MyProfile() {
                     {editMode && (
                         <button
                             onClick={handleProfileUpdate}
-                            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700"
+                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700 sm:w-auto"
                         >
                             <Save size={18} />
                             Save Changes
@@ -186,7 +185,7 @@ function MyProfile() {
             </div>
 
             {/* Change Password */}
-            <div className="mt-6 max-w-3xl rounded-xl bg-white p-6 shadow-sm">
+            <div className="mt-6 max-w-3xl rounded-xl bg-white p-4 shadow-sm sm:p-6">
                 <div className="mb-6 flex items-center gap-3">
                     <Lock className="text-indigo-600" />
                     <h2 className="text-lg font-semibold text-[#20213a]">
@@ -221,7 +220,7 @@ function MyProfile() {
 
                     <button
                         onClick={handlePasswordChange}
-                        className="rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700"
+                        className="w-full rounded-lg bg-indigo-600 px-6 py-3 font-semibold sm:w-auto text-white hover:bg-indigo-700"
                     >
                         Update Password
                     </button>

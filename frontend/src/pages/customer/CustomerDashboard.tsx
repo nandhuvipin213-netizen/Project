@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Search, X, UserRound } from "lucide-react";
 import api from "../../services/Api";
 
 interface CustomerShipment {
@@ -14,30 +15,6 @@ interface CustomerShipment {
   volume: number;
 }
 
-const stats = [
-  {
-    title: "Total Shipments",
-    value: "24",
-    subtitle: "All shipments",
-    icon: "📦",
-    color: "bg-[#142B4A]",
-  },
-  {
-    title: "Active Shipments",
-    value: "08",
-    subtitle: "Currently in transit",
-    icon: "🚚",
-    color: "bg-teal-600",
-  },
-  {
-    title: "Delivered",
-    value: "12",
-    subtitle: "Successfully delivered",
-    icon: "✓",
-    color: "bg-green-600",
-  },
-];
-
 const statusStyles: Record<string, string> = {
   "In Transit": "bg-blue-50 text-blue-700",
   Delivered: "bg-[#F4F8E9] text-[#142B4A]",
@@ -49,42 +26,50 @@ function CustomerDashboard() {
 
   const [customerShipments, setCustomerShipments] = useState<CustomerShipment[]>([]);
   const [loading, setLoading] = useState(true);
-const [error, setError] = useState("");
+  const [error, setError] = useState("");
+
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const customerName = storedUser.name || "Customer";
 
- 
-useEffect(() => {
-  const fetchCustomerShipments = async () => {
-    try {
-      setLoading(true);
-      setError("");
+  const customerInitials = customerName
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part: string) => part[0]?.toUpperCase() || "")
+    .join("");
 
-      const response = await api.get<{
-        success: boolean;
-        count: number;
-        shipments: CustomerShipment[];
-      }>("/shipments");
+  useEffect(() => {
+    const fetchCustomerShipments = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-      setCustomerShipments(response.data.shipments);
+        const response = await api.get<{
+          success: boolean;
+          count: number;
+          shipments: CustomerShipment[];
+        }>("/shipments");
 
-      console.log("Customer shipments loaded:", response.data.shipments);
-    } catch (error: any) {
-      console.error("Failed to load customer shipments:", error);
+        setCustomerShipments(response.data.shipments);
 
-      setError(
-        error.response?.data?.message ||
-          "Unable to load shipments. Please try again."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+        console.log("Customer shipments loaded:", response.data.shipments);
+      } catch (error: any) {
+        console.error("Failed to load customer shipments:", error);
 
-  fetchCustomerShipments();
-}, []);
+        setError(
+          error.response?.data?.message ||
+            "Unable to load shipments. Please try again."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchCustomerShipments();
+  }, []);
 
   // SHIPMENT CALCULATIONS
 
@@ -93,6 +78,7 @@ useEffect(() => {
   const activeShipments = customerShipments.filter((shipment) =>
     ["assigned", "picked-up", "in-transit"].includes(shipment.status)
   ).length;
+
   const currentActiveShipment = customerShipments.find((shipment) =>
     ["assigned", "picked-up", "in-transit"].includes(shipment.status)
   );
@@ -158,6 +144,24 @@ useEffect(() => {
 
   const currentMonthTotal = monthlyData[monthlyData.length - 1]?.value ?? 0;
 
+  // SEARCH FILTER
+
+  const filteredRecentShipments = customerShipments
+    .filter((shipment) => {
+      const search = searchTerm.trim().toLowerCase();
+
+      if (!search) return true;
+
+      return (
+        shipment._id.toLowerCase().includes(search) ||
+        shipment.pickupAddress.toLowerCase().includes(search) ||
+        shipment.deliveryAddress.toLowerCase().includes(search) ||
+        shipment.status.toLowerCase().includes(search) ||
+        shipment.goodsType.toLowerCase().includes(search)
+      );
+    })
+    .slice(0, 3);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -168,44 +172,115 @@ useEffect(() => {
     <div className="mx-auto max-w-[1500px] rounded-[28px] bg-[#f7f7f7] p-4 shadow-sm sm:p-6">
 
       {/* TOP NAVIGATION */}
-      <header className="flex flex-wrap items-center justify-between gap-4 rounded-full bg-white px-5 py-4 shadow-sm">
+      <header className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white px-4 py-3 shadow-sm sm:rounded-full sm:px-5 sm:py-4">
 
+        {/* LOGO */}
         <div className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#142B4A] text-xl text-white">
             <span>↗</span>
           </div>
+
           <h2 className="text-xl font-bold tracking-tight text-[#142B4A]">
-            Smart<span className="text-[#142B4A]">Logistics</span>
+            Smart<span>Logistics</span>
           </h2>
         </div>
 
+        {/* NAVIGATION */}
         <nav className="hidden items-center gap-7 rounded-full bg-gray-50 px-7 py-3 text-sm text-gray-600 lg:flex">
-          <Link to="/customer/dashboard" className="rounded-full bg-white px-4 py-2 font-semibold text-[#142B4A] shadow-sm">
+          <Link
+            to="/customer/dashboard"
+            className="rounded-full bg-white px-4 py-2 font-semibold text-[#142B4A] shadow-sm"
+          >
             Dashboard
           </Link>
-          <Link to="/customer/book-shipment" className="cursor-pointer hover:text-[#142B4A]">Shipments</Link>
-          <Link to="/customer/track-shipment" className="cursor-pointer hover:text-[#142B4A]">Tracking</Link>
-          <Link to="/customer/history" className="cursor-pointer hover:text-[#142B4A]">History</Link>
+
+          <Link
+            to="/customer/book-shipment"
+            className="cursor-pointer hover:text-[#142B4A]"
+          >
+            Shipments
+          </Link>
+
+          <Link
+            to="/customer/track-shipment"
+            className="cursor-pointer hover:text-[#142B4A]"
+          >
+            Tracking
+          </Link>
+
+          <Link
+            to="/customer/history"
+            className="cursor-pointer hover:text-[#142B4A]"
+          >
+            History
+          </Link>
         </nav>
 
-        <div className="flex items-center gap-4">
-          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-lg">
-            🔍
+        {/* HEADER ACTIONS */}
+        <div className="flex items-center gap-2 sm:gap-3">
+
+          {/* SEARCH BUTTON */}
+          <button
+            type="button"
+            onClick={() => {
+              setShowSearch((previous) => !previous);
+              setSearchTerm("");
+            }}
+            aria-label="Search shipments"
+            title="Search shipments"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-600 transition hover:bg-[#F4F8E9] hover:text-[#142B4A]"
+          >
+            {showSearch ? <X size={19} /> : <Search size={19} />}
           </button>
-          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-lg">
-            ♧
+
+          {/* PROFILE BUTTON */}
+          <button
+            type="button"
+            onClick={() => navigate("/customer/profile")}
+            aria-label="Open customer profile"
+            title="My Profile"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-600 transition hover:bg-[#F4F8E9] hover:text-[#142B4A]"
+          >
+            <UserRound size={19} />
           </button>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF5C8] font-bold text-[#142B4A]">
-            C
-          </div>
+
+          {/* CUSTOMER NAME AND AVATAR */}
+          <button
+            type="button"
+            onClick={() => navigate("/customer/profile")}
+            title="View Profile"
+            className="flex items-center gap-2 rounded-full p-1 pr-2 transition hover:bg-gray-50 sm:gap-3 sm:pr-3"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EAF5C8] text-sm font-bold uppercase text-[#142B4A]">
+              {customerInitials || "C"}
+            </div>
+
+            <span className="hidden max-w-[130px] truncate text-sm font-semibold text-[#142B4A] sm:block">
+              {customerName}
+            </span>
+          </button>
         </div>
+
+        {/* SEARCH INPUT */}
+        {showSearch && (
+          <div className="order-3 w-full">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by shipment ID, pickup, delivery or status..."
+              autoFocus
+              className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#142B4A] focus:bg-white"
+            />
+          </div>
+        )}
       </header>
 
       {/* MAIN LAYOUT */}
       <div className="mt-8 flex flex-col gap-6 lg:flex-row">
 
         {/* SIDEBAR */}
-        <aside className="flex shrink-0 flex-row justify-center gap-3 rounded-3xl bg-white p-3 shadow-sm lg:w-16 lg:flex-col lg:justify-start lg:gap-5">
+        <aside className="flex shrink-0 flex-row flex-wrap justify-center gap-2 rounded-3xl bg-white p-3 shadow-sm sm:gap-3 lg:w-16 lg:flex-col lg:flex-nowrap lg:justify-start lg:gap-5">
 
           {[
             { icon: "▦", path: "/customer/dashboard", active: true },
@@ -218,10 +293,11 @@ useEffect(() => {
               type="button"
               onClick={() => navigate(item.path)}
               aria-label={["Dashboard", "Shipments", "Tracking", "History"][index]}
-              className={`flex h-11 w-11 items-center justify-center rounded-full text-xl ${item.active
-                ? "bg-[#142B4A] text-white"
-                : "text-gray-500 hover:bg-[#F4F8E9] hover:text-[#142B4A]"
-                }`}
+              className={`flex h-11 w-11 items-center justify-center rounded-full text-xl ${
+                item.active
+                  ? "bg-[#142B4A] text-white"
+                  : "text-gray-500 hover:bg-[#F4F8E9] hover:text-[#142B4A]"
+              }`}
             >
               {item.icon}
             </button>
@@ -233,6 +309,7 @@ useEffect(() => {
             type="button"
             onClick={() => navigate("/customer/profile")}
             aria-label="Profile settings"
+            title="Profile settings"
             className="flex h-11 w-11 items-center justify-center rounded-full text-xl text-gray-500 hover:bg-gray-100"
           >
             ⚙
@@ -242,6 +319,7 @@ useEffect(() => {
             type="button"
             onClick={handleLogout}
             aria-label="Logout"
+            title="Logout"
             className="flex h-11 w-11 items-center justify-center rounded-full text-xl text-gray-500 hover:bg-gray-100"
           >
             ↪
@@ -257,18 +335,27 @@ useEffect(() => {
               <p className="text-sm font-medium text-gray-500">
                 CUSTOMER DASHBOARD
               </p>
-              <h1 className="mt-1 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
-                Welcome Back, <span className="font-normal text-gray-400">{customerName}</span>
+
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+                Welcome Back,{" "}
+                <span className="font-normal text-gray-400">
+                  {customerName}
+                </span>
               </h1>
+
               <p className="mt-2 text-sm text-gray-500">
                 Here's what's happening with your shipments.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <button className="rounded-full border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm">
+              <button
+                type="button"
+                className="rounded-full border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm"
+              >
                 📅 &nbsp; 01 Nov - 30 Nov, 2026
               </button>
+
               <button
                 type="button"
                 onClick={() => navigate("/customer/book-shipment")}
@@ -296,6 +383,7 @@ useEffect(() => {
                       Your shipment summary
                     </p>
                   </div>
+
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 text-gray-600">
                     ↗
                   </span>
@@ -303,7 +391,9 @@ useEffect(() => {
 
                 <div className="mt-5 rounded-[20px] bg-gradient-to-br from-emerald-700 to-emerald-600 p-5 text-white">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold">TOTAL SHIPMENTS</span>
+                    <span className="text-sm font-semibold">
+                      TOTAL SHIPMENTS
+                    </span>
                     <span className="text-xl">📦</span>
                   </div>
 
@@ -333,10 +423,12 @@ useEffect(() => {
                       {pendingShipments}
                     </h2>
                   </div>
+
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-2xl">
                     ⏳
                   </span>
                 </div>
+
                 <p className="mt-3 text-xs text-amber-600">
                   Awaiting pickup confirmation
                 </p>
@@ -344,15 +436,20 @@ useEffect(() => {
 
               {/* DELIVERY RATE */}
               <div className="rounded-[25px] bg-white p-5 shadow-sm">
-                <p className="text-sm text-gray-500">Delivery Success Rate</p>
+                <p className="text-sm text-gray-500">
+                  Delivery Success Rate
+                </p>
+
                 <div className="mt-2 flex items-end justify-between">
                   <h2 className="text-3xl font-semibold text-gray-900">
                     {deliverySuccessRate}%
                   </h2>
+
                   <span className="rounded-full bg-[#F4F8E9] px-3 py-1 text-xs font-medium text-[#142B4A]">
                     Live rate
                   </span>
                 </div>
+
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-100">
                   <div
                     className="h-full rounded-full bg-[#C8FF00]"
@@ -366,7 +463,7 @@ useEffect(() => {
             <div className="space-y-5 xl:col-span-5">
 
               {/* MONTHLY ACTIVITY */}
-              <div className="rounded-[25px] bg-white p-6 shadow-sm">
+              <div className="rounded-[25px] bg-white p-4 shadow-sm sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h3 className="font-semibold text-gray-900">
@@ -377,7 +474,10 @@ useEffect(() => {
                     </p>
                   </div>
 
-                  <button className="rounded-full bg-[#142B4A] px-4 py-2 text-xs font-medium text-white">
+                  <button
+                    type="button"
+                    className="rounded-full bg-[#142B4A] px-4 py-2 text-xs font-medium text-white"
+                  >
                     Monthly
                   </button>
                 </div>
@@ -393,10 +493,11 @@ useEffect(() => {
                       </span>
 
                       <div
-                        className={`w-full max-w-12 rounded-t-full ${index === monthlyData.length - 1
-                          ? "bg-[#142B4A]"
-                          : "bg-[#E5F5A8]"
-                          }`}
+                        className={`w-full max-w-12 rounded-t-full ${
+                          index === monthlyData.length - 1
+                            ? "bg-[#142B4A]"
+                            : "bg-[#E5F5A8]"
+                        }`}
                         style={{
                           height: `${(item.value / maxMonthlyShipments) * 100}%`,
                         }}
@@ -411,11 +512,14 @@ useEffect(() => {
 
                 <div className="mt-5 flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-500">Total this month</p>
+                    <p className="text-xs text-gray-500">
+                      Total this month
+                    </p>
                     <h3 className="mt-1 text-2xl font-semibold text-gray-900">
                       {currentMonthTotal} Shipments
                     </h3>
                   </div>
+
                   <span className="rounded-full bg-[#F4F8E9] px-3 py-2 text-xs font-semibold text-[#142B4A]">
                     Live data
                   </span>
@@ -433,13 +537,20 @@ useEffect(() => {
                       Your latest shipment activities
                     </p>
                   </div>
-                  <button className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 text-gray-600">
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/customer/history")}
+                    aria-label="View shipment history"
+                    title="View shipment history"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 text-gray-600 transition hover:bg-[#F4F8E9] hover:text-[#142B4A]"
+                  >
                     ↗
                   </button>
                 </div>
 
                 <div className="mt-5 space-y-4">
-                  {customerShipments.slice(0, 3).map((shipment) => {
+                  {filteredRecentShipments.map((shipment) => {
                     const displayStatus: Record<string, string> = {
                       "in-transit": "In Transit",
                       "picked-up": "Picked Up",
@@ -484,9 +595,10 @@ useEffect(() => {
 
                         <div className="text-right">
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-medium ${statusStyles[status] ||
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              statusStyles[status] ||
                               "bg-gray-100 text-gray-700"
-                              }`}
+                            }`}
                           >
                             {status}
                           </span>
@@ -498,6 +610,17 @@ useEffect(() => {
                       </div>
                     );
                   })}
+
+                  {!loading && filteredRecentShipments.length === 0 && (
+                    <div className="rounded-xl bg-gray-50 p-6 text-center">
+                      <p className="text-sm font-medium text-gray-600">
+                        No matching shipments found.
+                      </p>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Try another shipment ID, address or status.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <button
@@ -514,7 +637,7 @@ useEffect(() => {
             <div className="space-y-5 xl:col-span-4">
 
               {/* DELIVERY PROGRESS */}
-              <div className="rounded-[25px] bg-white p-6 shadow-sm">
+              <div className="rounded-[25px] bg-white p-4 shadow-sm sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold text-gray-900">
@@ -524,6 +647,7 @@ useEffect(() => {
                       Overall shipment status
                     </p>
                   </div>
+
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-50">
                     ↗
                   </span>
@@ -565,6 +689,7 @@ useEffect(() => {
                           {label}
                         </span>
                       </div>
+
                       <span className="text-sm font-semibold text-gray-900">
                         {value}
                       </span>
@@ -574,7 +699,7 @@ useEffect(() => {
               </div>
 
               {/* ACTIVE SHIPMENTS */}
-              <div className="rounded-[25px] bg-white p-6 shadow-sm">
+              <div className="rounded-[25px] bg-white p-4 shadow-sm sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold text-gray-900">
@@ -584,6 +709,7 @@ useEffect(() => {
                       Currently on the move
                     </p>
                   </div>
+
                   <span className="rounded-full bg-[#F4F8E9] px-3 py-1 text-xs font-semibold text-[#142B4A]">
                     active: {activeShipments}
                   </span>
@@ -614,16 +740,22 @@ useEffect(() => {
 
                     <div className="mt-5 flex items-center justify-between gap-3 text-sm">
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-900">Pickup</p>
+                        <p className="font-semibold text-gray-900">
+                          Pickup
+                        </p>
                         <p className="truncate text-xs text-gray-500">
                           {currentActiveShipment.pickupAddress}
                         </p>
                       </div>
 
-                      <span className="shrink-0 text-[#142B4A]">━━━━➜</span>
+                      <span className="shrink-0 text-[#142B4A]">
+                        ━━━━➜
+                      </span>
 
                       <div className="min-w-0 flex-1 text-right">
-                        <p className="font-semibold text-gray-900">Destination</p>
+                        <p className="font-semibold text-gray-900">
+                          Destination
+                        </p>
                         <p className="truncate text-xs text-gray-500">
                           {currentActiveShipment.deliveryAddress}
                         </p>
@@ -651,6 +783,7 @@ useEffect(() => {
                     </p>
                   </div>
                 )}
+
                 <button
                   type="button"
                   onClick={() => navigate("/customer/track-shipment")}

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   Plus,
@@ -87,8 +86,7 @@ export default function VehicleManagement() {
       } else {
         await api.post("/vehicles", payload);
       }
-      startingPrice: Number(form.startingPrice),
-        setForm(initialForm);
+      setForm(initialForm);
       setEditingId(null);
       setShowForm(false);
       await fetchVehicles();
@@ -197,13 +195,13 @@ export default function VehicleManagement() {
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-bold">Registered Vehicles</h2>
 
-          <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
+          <label className="flex w-full items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 sm:w-auto">
             <Search size={15} className="text-slate-400" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search vehicles..."
-              className="w-36 text-xs outline-none sm:w-52"
+              className="w-full min-w-0 text-xs outline-none sm:w-52"
             />
           </label>
         </div>
@@ -288,7 +286,7 @@ export default function VehicleManagement() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+          <div className="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:p-6">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-lg font-bold">
                 {editingId ? "Edit Vehicle" : "Add New Vehicle"}
@@ -309,7 +307,7 @@ export default function VehicleManagement() {
                   onChange={handleChange}
                   placeholder="KL 01 AB 1234"
                   required
-                  className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-violet-500"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-3 text-base outline-none focus:border-violet-500"
                 />
               </div>
 
@@ -321,7 +319,7 @@ export default function VehicleManagement() {
                   name="vehicleType"
                   value={form.vehicleType}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-violet-500"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-3 text-base outline-none focus:border-violet-500"
                 >
                   <option value="truck">Truck</option>
                   <option value="van">Van</option>
@@ -342,7 +340,7 @@ export default function VehicleManagement() {
                     onChange={handleChange}
                     min="1"
                     required
-                    className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-violet-500"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-3 text-base outline-none focus:border-violet-500"
                   />
                 </div>
 
@@ -358,7 +356,7 @@ export default function VehicleManagement() {
                     min="0.1"
                     step="any"
                     required
-                    className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-violet-500"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-3 text-base outline-none focus:border-violet-500"
                   />
                 </div>
               </div>
@@ -374,7 +372,7 @@ export default function VehicleManagement() {
                   min="0"
                   required
                   placeholder="Enter starting price"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-violet-500"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-3 text-base outline-none focus:border-violet-500"
                 />
               </div>
               {error && (

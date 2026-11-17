@@ -56,90 +56,127 @@ function ChangePassword() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#f5f4fb] px-4">
-            <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-                <div className="mb-6 flex justify-center">
-                    <div className="rounded-full bg-violet-100 p-4">
-                        <Lock className="h-8 w-8 text-violet-600" />
+        <div className="flex min-h-screen w-full items-center justify-center overflow-x-hidden bg-[#f5f4fb] px-3 py-6 sm:px-6 sm:py-10">
+
+            <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-lg sm:p-7 md:p-8">
+
+                {/* Icon */}
+                <div className="mb-5 flex justify-center sm:mb-6">
+                    <div className="rounded-full bg-violet-100 p-3 sm:p-4">
+                        <Lock className="h-7 w-7 text-violet-600 sm:h-8 sm:w-8" />
                     </div>
                 </div>
 
-                <h1 className="text-center text-2xl font-bold text-[#20213a]">
+                {/* Heading */}
+                <h1 className="text-center text-xl font-bold text-[#20213a] sm:text-2xl">
                     Change Your Password
                 </h1>
 
-                <p className="mt-2 mb-6 text-center text-sm text-gray-500">
+                <p className="mx-auto mb-5 mt-2 max-w-sm text-center text-sm leading-6 text-gray-500 sm:mb-6">
                     Please create a new password before accessing your driver dashboard.
                 </p>
 
+                {/* Error Message */}
                 {error && (
-                    <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                    <div className="mb-4 break-words rounded-lg bg-red-50 p-3 text-sm text-red-600">
                         {error}
                     </div>
                 )}
 
+                {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="mb-1 block text-sm font-medium">
+
+                    {/* Temporary Password */}
+                    <div className="min-w-0">
+                        <label className="mb-1.5 block text-sm font-medium text-gray-700">
                             Temporary Password
                         </label>
+
                         <input
                             type="password"
                             value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            onChange={(e) =>
+                                setCurrentPassword(e.target.value)
+                            }
                             required
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+                            autoComplete="current-password"
+                            className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100 sm:px-4 sm:text-base"
                             placeholder="Enter temporary password"
                         />
                     </div>
 
-                    <div>
-                        <label className="mb-1 block text-sm font-medium">
+                    {/* New Password */}
+                    <div className="min-w-0">
+                        <label className="mb-1.5 block text-sm font-medium text-gray-700">
                             New Password
                         </label>
-                        <div className="relative">
+
+                        <div className="relative min-w-0">
                             <input
                                 type={showPassword ? "text" : "password"}
                                 value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
+                                onChange={(e) =>
+                                    setNewPassword(e.target.value)
+                                }
                                 required
-                                className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 outline-none focus:border-violet-500"
+                                autoComplete="new-password"
+                                className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-3 pr-12 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100 sm:px-4 sm:text-base"
                                 placeholder="Enter new password"
                             />
+
                             <button
                                 type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-3 text-gray-500"
+                                onClick={() =>
+                                    setShowPassword(!showPassword)
+                                }
+                                aria-label={
+                                    showPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                }
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition hover:text-violet-600"
                             >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showPassword ? (
+                                    <EyeOff size={20} />
+                                ) : (
+                                    <Eye size={20} />
+                                )}
                             </button>
                         </div>
-                        <p className="mt-1 text-xs text-gray-500">
+
+                        <p className="mt-1.5 text-xs text-gray-500">
                             Minimum 12 characters.
                         </p>
                     </div>
 
-                    <div>
-                        <label className="mb-1 block text-sm font-medium">
+                    {/* Confirm Password */}
+                    <div className="min-w-0">
+                        <label className="mb-1.5 block text-sm font-medium text-gray-700">
                             Confirm New Password
                         </label>
+
                         <input
                             type="password"
                             value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onChange={(e) =>
+                                setConfirmPassword(e.target.value)
+                            }
                             required
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+                            autoComplete="new-password"
+                            className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100 sm:px-4 sm:text-base"
                             placeholder="Confirm new password"
                         />
                     </div>
 
+                    {/* Submit Button */}
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full rounded-lg bg-violet-600 py-3 font-semibold text-white transition hover:bg-violet-700 disabled:opacity-60"
+                        className="mt-2 w-full rounded-lg bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                     >
                         {loading ? "Updating..." : "Change Password"}
                     </button>
+
                 </form>
             </div>
         </div>

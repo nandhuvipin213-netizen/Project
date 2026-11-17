@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   MapContainer,
@@ -66,8 +65,8 @@ const DriverLocationsMap = () => {
   }
 
   return (
-    <section className="rounded-2xl border border-violet-100 bg-white p-5 shadow-sm">
-      <h2 className="mb-2 text-lg font-bold text-slate-800">
+    <section className="rounded-2xl border border-violet-100 bg-white p-3 shadow-sm sm:p-5">
+      <h2 className="mb-2 text-base font-bold text-slate-800 sm:text-lg">
         Live Driver Locations
       </h2>
 
@@ -84,7 +83,7 @@ const DriverLocationsMap = () => {
           center={[9.5, 76.4]}
           zoom={8}
           scrollWheelZoom={true}
-          style={{ height: "400px", width: "100%", borderRadius: "12px" }}
+          className="h-[300px] w-full rounded-xl sm:h-[400px]"
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -106,18 +105,20 @@ const DriverLocationsMap = () => {
               }}
             >
               <Popup>
-                <strong>{driver.user.name}</strong>
-                <br />
-                {driver.user.email}
-                <br />
-                Status: {driver.availabilityStatus}
-                <br />
-                Last updated:{" "}
-                {driver.currentLocation.updatedAt
-                  ? new Date(
-                      driver.currentLocation.updatedAt
-                    ).toLocaleTimeString()
-                  : "Not available"}
+                <div className="max-w-[70vw] break-words">
+                  <strong>{driver.user.name}</strong>
+                  <br />
+                  {driver.user.email}
+                  <br />
+                  Status: {driver.availabilityStatus}
+                  <br />
+                  Last updated:{" "}
+                  {driver.currentLocation.updatedAt
+                    ? new Date(
+                        driver.currentLocation.updatedAt
+                      ).toLocaleTimeString()
+                    : "Not available"}
+                </div>
               </Popup>
             </CircleMarker>
           ))}

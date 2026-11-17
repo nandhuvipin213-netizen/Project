@@ -93,6 +93,35 @@ const shipmentSchema = new Schema(
       default: 0,
       min: 0,
     },
+        // Estimated shipment pricing
+    distanceCharge: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    estimatedVehicleRent: {
+      type: Number,
+      default: null,
+      min: 0,
+    },
+
+    estimatedVehicleType: {
+      type: String,
+      default: null,
+    },
+
+    estimatedTotal: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    estimateStatus: {
+      type: String,
+      enum: ["pending-weight", "estimated", "no-suitable-vehicle"],
+      default: "pending-weight",
+    },
 
     advancePaymentStatus: {
       type: String,

@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useState } from "react";
 import api from "../../services/Api";
 import AdminLiveTrackingMap, {
@@ -33,7 +32,7 @@ const LiveTracking = () => {
     }, [fetchLocations]);
 
     return (
-        <div className="space-y-6 p-6">
+        <div className="space-y-4 sm:space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h1 className="text-2xl font-bold text-[#20213a]">
@@ -53,7 +52,7 @@ const LiveTracking = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="rounded-xl border bg-white p-5 shadow-sm">
+                <div className="rounded-xl border bg-white p-4 shadow-sm sm:p-5">
                     <p className="text-sm text-gray-500">
                         Active Vehicles Tracked
                     </p>
@@ -62,7 +61,7 @@ const LiveTracking = () => {
                     </h2>
                 </div>
 
-                <div className="rounded-xl border bg-white p-5 shadow-sm">
+                <div className="rounded-xl border bg-white p-4 shadow-sm sm:p-5">
                     <p className="text-sm text-gray-500">
                         Tracking Status
                     </p>

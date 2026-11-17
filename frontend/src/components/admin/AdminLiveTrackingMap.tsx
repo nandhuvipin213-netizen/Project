@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useMap, MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 
@@ -62,12 +61,12 @@ const AdminLiveTrackingMap = ({
             : [10.8505, 76.2711];
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-gray-200">
+        <div className="w-full overflow-hidden rounded-2xl border border-gray-200">
             <MapContainer
                 center={defaultPosition}
                 zoom={7}
                 scrollWheelZoom={true}
-                style={{ height: "500px", width: "100%" }}
+                className="h-[320px] w-full sm:h-[420px] lg:h-[500px]"
             >
                 <MapUpdater locations={locations} />
 
@@ -91,7 +90,7 @@ const AdminLiveTrackingMap = ({
                         }}
                     >
                         <Popup>
-                            <div className="min-w-[220px] space-y-2">
+                            <div className="min-w-[180px] max-w-[70vw] space-y-2 break-words text-sm sm:min-w-[220px]">
                                 <h3 className="font-bold text-purple-700">
                                     {location.vehicle.registrationNumber}
                                 </h3>

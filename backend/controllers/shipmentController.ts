@@ -80,11 +80,47 @@ export const createShipment: RequestHandler = async (req, res) => {
       deliveryCoordinates
     );
 
+    // Advance payment calculation
     const advanceRatePerKm = 5;
 
     const advanceAmount = Number(
       (distanceKm * advanceRatePerKm).toFixed(2)
-    )
+    );
+
+    // Estimated shipment pricing
+    const distanceCharge = advanceAmount;
+
+    let estimatedVehicleRent: number | null = null;
+    let estimatedVehicleType: string | null = null;
+    let estimateStatus:
+      | "pending-weight"
+      | "estimated"
+      | "no-suitable-vehicle" = "pending-weight";
+
+    if (weight && Number(weight) > 0) {
+      // Find available vehicles with sufficient weight capacity
+      const suitableVehicles = await VehicleModel.find({
+        status: "available",
+        isActive: true,
+        capacity: { $gte: Number(weight) },
+      })
+        .sort({ startingPrice: 1 })
+        .limit(1);
+
+      const suitableVehicle = suitableVehicles[0];
+
+      if (suitableVehicle) {
+        estimatedVehicleRent = suitableVehicle.startingPrice;
+        estimatedVehicleType = suitableVehicle.vehicleType;
+        estimateStatus = "estimated";
+      } else {
+        estimateStatus = "no-suitable-vehicle";
+      }
+    }
+
+    const estimatedTotal = Number(
+      (distanceCharge + (estimatedVehicleRent ?? 0)).toFixed(2)
+    );
 
     // Save shipment with both coordinate sets
     const shipment = await shipmentModel.create({
@@ -103,8 +139,15 @@ export const createShipment: RequestHandler = async (req, res) => {
       isFragile,
 
       distanceKm,
+
       advanceAmount,
       advanceRatePerKm,
+
+      distanceCharge,
+      estimatedVehicleRent,
+      estimatedVehicleType,
+      estimatedTotal,
+      estimateStatus,
 
       statusHistory: [
         {
@@ -144,14 +187,14 @@ export const getsShipment: RequestHandler = async (req, res) => {
         .sort({ createdAt: -1 });
     }
     else {
-     shipments = await shipmentModel
-    .find({
-        customer: authUser.userId,
-    })
-    .populate("assignedDriver", "name email")
-    .populate("assignedVehicle", "registrationNumber vehicleType")
-    .sort({ createdAt: -1 })
-    .lean();
+      shipments = await shipmentModel
+        .find({
+          customer: authUser.userId,
+        })
+        .populate("assignedDriver", "name email")
+        .populate("assignedVehicle", "registrationNumber vehicleType")
+        .sort({ createdAt: -1 })
+        .lean();
     }
     res.status(200).json({
       success: true,
@@ -379,6 +422,7 @@ export const getDriverShipments: RequestHandler = async (req, res) => {
   }
 };
 
+
 export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
@@ -396,7 +440,6 @@ export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
       return;
     }
 
-
     const shipment = await shipmentModel.findOne({
       _id: id,
       assignedDriver: driverId,
@@ -409,6 +452,7 @@ export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
       });
       return;
     }
+
     const allowedTransitions: Record<string, string> = {
       assigned: "picked-up",
       "picked-up": "in-transit",
@@ -423,23 +467,44 @@ export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
       return;
     }
 
-    shipment.status = status;
+    // Update only status and statusHistory.
+    // This avoids validating missing fields on older shipments.
+    const updatedShipment = await shipmentModel.findOneAndUpdate(
+      {
+        _id: id,
+        assignedDriver: driverId,
+        status: shipment.status,
+      },
+      {
+        $set: { status },
+        $push: {
+          statusHistory: {
+            status,
+            updatedBy: driverId,
+          },
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
-    shipment.statusHistory.push({
-      status: status,
-      updatedBy: res.locals.authUser.userId,
-    });
+    if (!updatedShipment) {
+      res.status(409).json({
+        success: false,
+        message: "Shipment status changed. Please refresh and try again.",
+      });
+      return;
+    }
 
-    await shipment.save();
     if (status === "delivered") {
-      // Check whether the driver has other active shipments
       const otherActiveShipments = await shipmentModel.find({
         assignedDriver: driverId,
-        _id: { $ne: shipment._id },
+        _id: { $ne: updatedShipment._id },
         status: { $in: ["assigned", "picked-up", "in-transit"] },
       });
 
-      // Make driver available only if no active shipments remain
       if (otherActiveShipments.length === 0) {
         await DriverModel.findOneAndUpdate(
           { user: driverId },
@@ -447,17 +512,16 @@ export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
         );
       }
 
-      // Release vehicle only if no other active shipment uses it
-      if (shipment.assignedVehicle) {
+      if (updatedShipment.assignedVehicle) {
         const vehicleInUse = await shipmentModel.findOne({
-          assignedVehicle: shipment.assignedVehicle,
-          _id: { $ne: shipment._id },
+          assignedVehicle: updatedShipment.assignedVehicle,
+          _id: { $ne: updatedShipment._id },
           status: { $in: ["assigned", "picked-up", "in-transit"] },
         });
 
         if (!vehicleInUse) {
           await VehicleModel.findByIdAndUpdate(
-            shipment.assignedVehicle,
+            updatedShipment.assignedVehicle,
             { status: "available" }
           );
         }
@@ -467,7 +531,7 @@ export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Delivery status updated successfully",
-      shipment,
+      shipment: updatedShipment,
     });
 
   } catch (error) {
@@ -479,6 +543,7 @@ export const updateDriverShipmentStatus: RequestHandler = async (req, res) => {
     });
   }
 };
+
 
 export const getShipmentTracking: RequestHandler = async (req, res) => {
   try {
@@ -806,106 +871,106 @@ export const verifyAdvancePayment: RequestHandler = async (req, res) => {
 };
 
 export const handleRazorpayWebhook: RequestHandler = async (req, res) => {
-    try {
-        const rawBody = (req as typeof req & {
-            rawBody?: Buffer;
-        }).rawBody;
+  try {
+    const rawBody = (req as typeof req & {
+      rawBody?: Buffer;
+    }).rawBody;
 
-        const signature = req.headers["x-razorpay-signature"];
+    const signature = req.headers["x-razorpay-signature"];
 
-        if (!rawBody || typeof signature !== "string") {
-            res.status(400).json({
-                success: false,
-                message: "Missing webhook body or signature",
-            });
-            return;
-        }
-
-        // Generate the expected webhook signature
-        const expectedSignature = createHmac(
-            "sha256",
-            process.env.RAZORPAY_WEBHOOK_SECRET!
-        )
-            .update(rawBody)
-            .digest("hex");
-
-        const expectedBuffer = Buffer.from(expectedSignature, "hex");
-        const receivedBuffer = Buffer.from(signature, "hex");
-
-        if (
-            expectedBuffer.length !== receivedBuffer.length ||
-            !timingSafeEqual(expectedBuffer, receivedBuffer)
-        ) {
-            res.status(400).json({
-                success: false,
-                message: "Invalid webhook signature",
-            });
-            return;
-        }
-
-        // Read the verified webhook event
-        const event = JSON.parse(rawBody.toString("utf8"));
-
-        const payment = event.payload?.payment?.entity;
-
-        if (!payment) {
-            res.status(200).json({ success: true });
-            return;
-        }
-
-        // Find the shipment using its Razorpay order ID
-        const shipment = await shipmentModel.findOne({
-            advanceOrderId: payment.order_id,
-        });
-
-        if (!shipment) {
-            res.status(200).json({ success: true });
-            return;
-        }
-
-        // Handle successful payment capture
-        if (event.event === "payment.captured") {
-            if (
-                payment.status !== "captured" ||
-                payment.amount !== Math.round(shipment.advanceAmount * 100)
-            ) {
-                res.status(400).json({
-                    success: false,
-                    message: "Payment details do not match",
-                });
-                return;
-            }
-
-            // Prevent duplicate webhook processing
-            if (shipment.advancePaymentStatus !== "paid") {
-                shipment.advancePaymentStatus = "paid";
-                shipment.advancePaymentId = payment.id;
-                shipment.advancePaidAt = new Date();
-
-                await shipment.save();
-            }
-        }
-
-        // Handle failed payment
-        if (
-            event.event === "payment.failed" &&
-            shipment.advancePaymentStatus === "pending"
-        ) {
-            shipment.advancePaymentStatus = "failed";
-            await shipment.save();
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Webhook processed successfully",
-        });
-
-    } catch (error) {
-        console.error("Razorpay webhook error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Webhook processing failed",
-        });
+    if (!rawBody || typeof signature !== "string") {
+      res.status(400).json({
+        success: false,
+        message: "Missing webhook body or signature",
+      });
+      return;
     }
+
+    // Generate the expected webhook signature
+    const expectedSignature = createHmac(
+      "sha256",
+      process.env.RAZORPAY_WEBHOOK_SECRET!
+    )
+      .update(rawBody)
+      .digest("hex");
+
+    const expectedBuffer = Buffer.from(expectedSignature, "hex");
+    const receivedBuffer = Buffer.from(signature, "hex");
+
+    if (
+      expectedBuffer.length !== receivedBuffer.length ||
+      !timingSafeEqual(expectedBuffer, receivedBuffer)
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid webhook signature",
+      });
+      return;
+    }
+
+    // Read the verified webhook event
+    const event = JSON.parse(rawBody.toString("utf8"));
+
+    const payment = event.payload?.payment?.entity;
+
+    if (!payment) {
+      res.status(200).json({ success: true });
+      return;
+    }
+
+    // Find the shipment using its Razorpay order ID
+    const shipment = await shipmentModel.findOne({
+      advanceOrderId: payment.order_id,
+    });
+
+    if (!shipment) {
+      res.status(200).json({ success: true });
+      return;
+    }
+
+    // Handle successful payment capture
+    if (event.event === "payment.captured") {
+      if (
+        payment.status !== "captured" ||
+        payment.amount !== Math.round(shipment.advanceAmount * 100)
+      ) {
+        res.status(400).json({
+          success: false,
+          message: "Payment details do not match",
+        });
+        return;
+      }
+
+      // Prevent duplicate webhook processing
+      if (shipment.advancePaymentStatus !== "paid") {
+        shipment.advancePaymentStatus = "paid";
+        shipment.advancePaymentId = payment.id;
+        shipment.advancePaidAt = new Date();
+
+        await shipment.save();
+      }
+    }
+
+    // Handle failed payment
+    if (
+      event.event === "payment.failed" &&
+      shipment.advancePaymentStatus === "pending"
+    ) {
+      shipment.advancePaymentStatus = "failed";
+      await shipment.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Webhook processed successfully",
+    });
+
+  } catch (error) {
+    console.error("Razorpay webhook error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Webhook processing failed",
+    });
+  }
 };

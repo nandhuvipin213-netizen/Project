@@ -12,6 +12,7 @@ import {
   updateDriverLocation,
   getMyDriverLocation,
   getMyDriverProfile,
+  updateMyDriverProfile,
 } from "../controllers/driverController.js";
 import { resetDriverPassword } from "../controllers/authcontroller.js";
 
@@ -67,6 +68,13 @@ router.get(
   authenticateToken,
   authorizeRoles("driver"),
   getMyDriverProfile
+);
+
+router.put(
+  "/my-profile",
+  authenticateToken,
+  authorizeRoles("driver"),
+  updateMyDriverProfile
 );
 // Dynamic admin routes MUST come afterwards
 router.get("/:id", authenticateToken, authorizeRoles("admin"), getDriverById);

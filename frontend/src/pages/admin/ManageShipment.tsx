@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import {
   Search,
@@ -297,7 +296,7 @@ export default function ManageShipment() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f1effb] p-4 text-[#20213a] sm:p-6">
+    <main className="text-[#20213a]">
       <div className="mx-auto max-w-[1500px] space-y-6">
 
         {/* Heading */}
@@ -405,7 +404,7 @@ export default function ManageShipment() {
         </section>
 
         {/* Shipment table */}
-        <section className="rounded-[20px] border border-white bg-white p-5 shadow-sm">
+        <section className="rounded-[20px] border border-white bg-white p-4 shadow-sm sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="text-sm font-bold">All Shipments</h2>
@@ -415,13 +414,13 @@ export default function ManageShipment() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5">
+              <label className="flex w-full items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 sm:w-auto">
                 <Search className="h-4 w-4 text-slate-400" />
                 <input
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search shipments..."
-                  className="w-36 bg-transparent text-xs outline-none sm:w-48"
+                  className="w-full min-w-0 bg-transparent text-xs outline-none sm:w-48"
                 />
               </label>
 
@@ -571,7 +570,7 @@ export default function ManageShipment() {
         {/* Shipment Assignment Modal */}
         {shipmentToAssign && (
           <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4">
-            <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+            <div className="max-h-[90dvh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-bold">Assign Shipment</h2>
@@ -692,7 +691,7 @@ export default function ManageShipment() {
                 </div>
               )}
 
-              <div className="mt-7 flex justify-end gap-3">
+              <div className="mt-7 flex flex-wrap justify-end gap-3">
                 <button
                   onClick={() => {
                     setShipmentToAssign(null);
@@ -724,7 +723,7 @@ export default function ManageShipment() {
         {/* Shipment details modal */}
         {selectedShipment && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+            <div className="max-h-[90dvh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:p-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold">Shipment Details</h2>
 
@@ -740,7 +739,7 @@ export default function ManageShipment() {
                 <div>
                   <p className="text-slate-400">Shipment ID</p>
                   <p className="mt-1 font-semibold">
-                    #{selectedShipment._id}
+                    <span className="break-all">#{selectedShipment._id}</span>
                   </p>
                 </div>
 
@@ -831,7 +830,7 @@ export default function ManageShipment() {
         {/* Delete Confirmation Modal */}
         {shipmentToDelete && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl sm:p-6">
               <div className="flex items-center gap-3">
                 <div className="rounded-xl bg-rose-100 p-3 text-rose-600">
                   <AlertTriangle className="h-6 w-6" />
@@ -855,7 +854,7 @@ export default function ManageShipment() {
                 ? This action cannot be undone.
               </p>
 
-              <div className="mt-6 flex justify-end gap-3">
+              <div className="mt-6 flex flex-wrap justify-end gap-3">
                 <button
                   onClick={() => setShipmentToDelete(null)}
                   disabled={deleting}

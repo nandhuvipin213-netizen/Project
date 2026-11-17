@@ -3,7 +3,13 @@ import express from "express"
 import {authenticateToken} from "../middleware/authMiddleware.js"
 import {authorizeRoles} from "../middleware/roleMiddleware.js"
 import { registerUser,  loginUser, createAdminUser,createDriver,resetDriverPassword, changePassword, getProfile } from "../controllers/authcontroller.js"
-import { updateProfile } from "../controllers/authcontroller.js"
+import { updateProfile, googleLogin } from "../controllers/authcontroller.js"
+import {
+    forgotPassword,
+    verifyResetOTP,
+    resetPassword,
+} from "../controllers/authcontroller.js";
+
 
 const router=express.Router()
 
@@ -15,6 +21,10 @@ router.put(
   authorizeRoles("driver","customer"),
   changePassword
 );
+router.post("/forgot-password", forgotPassword);
+router.post("/verify-reset-otp", verifyResetOTP);
+router.post("/reset-password", resetPassword);
+router.post("/google", googleLogin);
 router.get("/profile", authenticateToken, getProfile);
 router.put("/profile", authenticateToken, updateProfile);
 router.post("/setup-admin",createAdminUser)

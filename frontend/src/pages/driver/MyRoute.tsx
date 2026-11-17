@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -58,7 +59,7 @@ function MyRoute() {
         if (axios.isAxiosError(error)) {
           setError(
             error.response?.data?.message ||
-              "Unable to load your route."
+            "Unable to load your route."
           );
         } else {
           setError("Something went wrong.");
@@ -72,13 +73,14 @@ function MyRoute() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="w-full min-w-0 space-y-5 sm:space-y-6">
+      {/* Page Heading */}
+      <div className="min-w-0">
         <p className="text-xs font-bold uppercase tracking-wider text-violet-600">
           Driver Workspace
         </p>
 
-        <h1 className="mt-2 text-2xl font-extrabold text-slate-800">
+        <h1 className="mt-2 text-xl font-extrabold text-slate-800 sm:text-2xl">
           My Route
         </h1>
 
@@ -87,29 +89,30 @@ function MyRoute() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-violet-100 bg-white p-5 shadow-sm">
+      {/* Route Statistics */}
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+        <div className="min-w-0 rounded-2xl border border-violet-100 bg-white p-4 shadow-sm sm:p-5">
           <div className="flex items-center gap-3">
-            <Route className="h-8 w-8 text-violet-600" />
-            <div>
+            <Route className="h-7 w-7 shrink-0 text-violet-600 sm:h-8 sm:w-8" />
+            <div className="min-w-0">
               <p className="text-sm text-slate-500">
                 Active Routes
               </p>
-              <h2 className="text-2xl font-extrabold text-slate-800">
+              <h2 className="text-xl font-extrabold text-slate-800 sm:text-2xl">
                 {shipments.length}
               </h2>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-violet-100 bg-white p-5 shadow-sm">
+        <div className="min-w-0 rounded-2xl border border-violet-100 bg-white p-4 shadow-sm sm:p-5">
           <div className="flex items-center gap-3">
-            <Package className="h-8 w-8 text-violet-600" />
-            <div>
+            <Package className="h-7 w-7 shrink-0 text-violet-600 sm:h-8 sm:w-8" />
+            <div className="min-w-0">
               <p className="text-sm text-slate-500">
                 Active Shipments
               </p>
-              <h2 className="text-2xl font-extrabold text-slate-800">
+              <h2 className="text-xl font-extrabold text-slate-800 sm:text-2xl">
                 {shipments.length}
               </h2>
             </div>
@@ -117,8 +120,9 @@ function MyRoute() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-violet-100 bg-white p-5 shadow-sm">
-        <h2 className="mb-5 text-lg font-bold text-slate-800">
+      {/* Assigned Delivery Routes */}
+      <div className="min-w-0 rounded-2xl border border-violet-100 bg-white p-4 shadow-sm sm:p-6">
+        <h2 className="mb-5 text-base font-bold text-slate-800 sm:text-lg">
           Assigned Delivery Routes
         </h2>
 
@@ -132,7 +136,7 @@ function MyRoute() {
         )}
 
         {!loading && error && (
-          <p className="py-8 text-center text-sm text-rose-600">
+          <p className="break-words py-8 text-center text-sm text-rose-600">
             {error}
           </p>
         )}
@@ -149,8 +153,8 @@ function MyRoute() {
           </div>
         )}
 
-        {!loading && !error && (
-          <div className="space-y-6">
+        {!loading && !error && shipments.length > 0 && (
+          <div className="min-w-0 space-y-5 sm:space-y-6">
             {shipments.map((shipment, index) => {
               const hasCoordinates =
                 shipment.pickupCoordinates &&
@@ -163,43 +167,61 @@ function MyRoute() {
               return (
                 <div
                   key={shipment._id}
-                  className="rounded-xl border border-slate-100 p-4"
+                  className="min-w-0 overflow-hidden rounded-xl border border-slate-100 p-3 sm:p-4"
                 >
-                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <h3 className="font-bold text-slate-800">
+                  {/* Shipment Header */}
+                  <div className="mb-4 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="break-words text-sm font-bold text-slate-800 sm:text-base">
                         Route {index + 1} · Shipment #
                         {shipment._id.slice(-6).toUpperCase()}
                       </h3>
-                      <p className="mt-1 text-xs text-slate-500">
+
+                      <p className="mt-1 break-words text-xs text-slate-500">
                         {shipment.goodsType} · {shipment.weight} kg
                       </p>
                     </div>
 
-                    <span className="rounded-full bg-violet-100 px-3 py-1.5 text-xs font-bold capitalize text-violet-700">
+                    <span className="w-fit shrink-0 rounded-full bg-violet-100 px-3 py-1.5 text-xs font-bold capitalize text-violet-700">
                       {shipment.status.replace("-", " ")}
                     </span>
                   </div>
 
-                  <div className="mb-5 space-y-3">
-                    <p className="flex items-start gap-2 text-sm text-slate-600">
-                      <MapPin className="h-4 w-4 shrink-0 text-emerald-600" />
-                      Pickup: {shipment.pickupAddress}
+                  {/* Pickup and Delivery Addresses */}
+                  <div className="mb-5 min-w-0 space-y-3">
+                    <p className="flex min-w-0 items-start gap-2 text-sm text-slate-600">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                      <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                        <span className="font-semibold">Pickup:</span>{" "}
+                        {shipment.pickupAddress}
+                      </span>
                     </p>
 
-                    <p className="flex items-start gap-2 text-sm text-slate-600">
-                      <MapPin className="h-4 w-4 shrink-0 text-rose-500" />
-                      Delivery: {shipment.deliveryAddress}
+                    <p className="flex min-w-0 items-start gap-2 text-sm text-slate-600">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+                      <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                        <span className="font-semibold">Delivery:</span>{" "}
+                        {shipment.deliveryAddress}
+                      </span>
                     </p>
                   </div>
 
-                  {hasCoordinates ? (
-                    <ShipmentMap
-                      pickupCoordinates={shipment.pickupCoordinates!}
-                      deliveryCoordinates={shipment.deliveryCoordinates!}
-                    />
+                  {/* Route Map */}
+                  {shipment.pickupCoordinates &&
+                    shipment.deliveryCoordinates &&
+                    Number.isFinite(shipment.pickupCoordinates.lat) &&
+                    Number.isFinite(shipment.pickupCoordinates.lng) &&
+                    Number.isFinite(shipment.deliveryCoordinates.lat) &&
+                    Number.isFinite(shipment.deliveryCoordinates.lng) ? (
+                    <div className="w-full min-w-0 overflow-hidden rounded-xl">
+                      <ShipmentMap
+                        pickupCoordinates={shipment.pickupCoordinates}
+                        deliveryCoordinates={shipment.deliveryCoordinates}
+                        shipmentStatus={shipment.status}
+                      />
+                    </div>
                   ) : (
-                    <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-700">
+                    <p className="break-words rounded-xl bg-amber-50 p-3 text-sm text-amber-700 sm:p-4">
                       Route map is unavailable because location coordinates are missing.
                     </p>
                   )}

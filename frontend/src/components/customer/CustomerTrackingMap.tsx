@@ -118,7 +118,7 @@ const CustomerTrackingMap = ({
 
     return (
         <div className="mt-5 overflow-hidden rounded-2xl border border-gray-200">
-            <h3 className="bg-[#F4F8E9] p-4 font-semibold text-[#142B4A]">
+            <h3 className="bg-[#F4F8E9] p-3 text-sm font-semibold text-[#142B4A] sm:p-4 sm:text-base">
                 Live Driver Location
             </h3>
 
@@ -126,7 +126,7 @@ const CustomerTrackingMap = ({
                 center={driverPosition}
                 zoom={14}
                 scrollWheelZoom={true}
-                style={{ height: "400px", width: "100%" }}
+                className="h-[300px] w-full sm:h-[400px]"
             >
                 <MapUpdater
                     driverLatitude={driverLatitude}

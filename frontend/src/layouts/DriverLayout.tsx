@@ -1,4 +1,3 @@
-
 import { NavLink, Outlet } from "react-router-dom";
 import { Bell, Truck, UserRound } from "lucide-react";
 import { driverNavItems } from "../components/driver/DriverSidebar";
@@ -16,32 +15,32 @@ function DriverLayoutContent() {
   const driverName = user.name || "Driver";
 
   return (
-    <div className="min-h-screen bg-[#f5f4fb] text-[#20213a] lg:flex">
+    <div className="min-h-dvh bg-[#f5f4fb] text-[#20213a] lg:flex">
       <DriverSidebar />
 
       <div className="min-w-0 flex-1">
         {/* Top Navbar */}
-        <header className="sticky top-0 z-30 border-b border-violet-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur sm:px-6 lg:px-8">
-          <div className="flex min-h-11 items-center justify-between gap-3">
+        <header className="sticky top-0 z-30 border-b border-violet-100 bg-white/95 px-3 py-3 shadow-sm backdrop-blur sm:px-6 lg:px-8">
+          <div className="flex min-h-11 items-center justify-between gap-2 sm:gap-3">
             {/* Brand */}
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 text-white lg:hidden">
-                <Truck className="h-5 w-5" />
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 text-white sm:h-10 sm:w-10 lg:hidden">
+                <Truck className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
 
-              <div>
-                <p className="text-sm font-extrabold tracking-wide text-[#24223d]">
+              <div className="min-w-0">
+                <p className="truncate text-xs font-extrabold tracking-wide text-[#24223d] sm:text-sm">
                   DRIVER WORKSPACE
                 </p>
-                <p className="text-[11px] text-slate-500">
+                <p className="truncate text-[10px] text-slate-500 sm:text-[11px]">
                   Smart Logistics Management
                 </p>
               </div>
             </div>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-3">
-              <div className="hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 sm:flex">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <div className="hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 md:flex">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 <span className="text-xs font-semibold text-emerald-700">
                   Online
@@ -52,7 +51,7 @@ function DriverLayoutContent() {
               <NavLink
                 to="/driver/notifications"
                 aria-label={`Notifications, ${unreadCount} unread`}
-                className="relative grid h-10 w-10 place-items-center rounded-xl border border-slate-100 text-slate-600 transition hover:bg-violet-50 hover:text-violet-700"
+                className="relative grid h-9 w-9 place-items-center rounded-xl border border-slate-100 text-slate-600 transition hover:bg-violet-50 hover:text-violet-700 sm:h-10 sm:w-10"
               >
                 <Bell className="h-[18px] w-[18px]" />
 
@@ -64,18 +63,16 @@ function DriverLayoutContent() {
               </NavLink>
 
               {/* Driver Profile */}
-              <div className="flex items-center gap-2 rounded-full bg-[#f1edff] py-1 pl-1 pr-3">
-                <div className="grid h-8 w-8 place-items-center rounded-full bg-violet-200 text-violet-800">
+              <div className="flex items-center gap-2 rounded-full bg-[#f1edff] py-1 pl-1 pr-1 sm:pr-3">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-200 text-violet-800">
                   <UserRound className="h-4 w-4" />
                 </div>
 
-                <div className="hidden sm:block">
-                  <p className="text-xs font-bold text-slate-800">
+                <div className="hidden min-w-0 sm:block">
+                  <p className="max-w-[10rem] truncate text-xs font-bold text-slate-800">
                     {driverName}
                   </p>
-                  <p className="text-[10px] text-slate-500">
-                    Driver
-                  </p>
+                  <p className="text-[10px] text-slate-500">Driver</p>
                 </div>
               </div>
             </div>
@@ -83,7 +80,7 @@ function DriverLayoutContent() {
         </header>
 
         {/* Mobile Navigation */}
-        <nav className="flex gap-2 overflow-x-auto border-b border-violet-100 bg-white px-3 py-3 lg:hidden">
+        <nav className="flex gap-2 overflow-x-auto border-b border-violet-100 bg-white px-3 py-3 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
           {driverNavItems.map((item) => {
             const Icon = item.icon;
 

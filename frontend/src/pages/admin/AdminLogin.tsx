@@ -1,8 +1,8 @@
-
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Truck, LockKeyhole, Eye, EyeOff } from "lucide-react";
 import api from "../../services/Api";
+import { Link } from "react-router-dom";
 
 function AdminLogin() {
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ function AdminLogin() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f1effb]">
+    <div className="flex min-h-dvh bg-[#f1effb]">
       {/* Left branding section */}
       <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-violet-700 via-violet-600 to-indigo-700 p-12 text-white lg:flex">
         <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10" />
@@ -83,8 +83,8 @@ function AdminLogin() {
       </div>
 
       {/* Login form */}
-      <div className="flex w-full items-center justify-center px-6 py-12 lg:w-1/2">
-        <div className="w-full max-w-md rounded-3xl border border-white bg-white p-7 shadow-xl shadow-violet-100/70 sm:p-10">
+      <div className="flex w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:w-1/2">
+        <div className="w-full max-w-md rounded-3xl border border-white bg-white p-5 shadow-xl shadow-violet-100/70 sm:p-10">
           <div className="mb-8">
             <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-violet-100 text-violet-700">
               <LockKeyhole size={23} />
@@ -93,7 +93,7 @@ function AdminLogin() {
             <p className="text-xs font-semibold uppercase tracking-widest text-violet-600">
               Admin Access
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-[#24233d]">
+            <h2 className="mt-2 text-2xl font-bold text-[#24233d] sm:text-3xl">
               Welcome back
             </h2>
             <p className="mt-2 text-sm text-slate-500">
@@ -116,7 +116,7 @@ function AdminLogin() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@example.com"
                 required
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
               />
             </div>
 
@@ -136,7 +136,7 @@ function AdminLogin() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 pr-12 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 pr-12 text-base outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
                 />
 
                 <button
@@ -148,6 +148,14 @@ function AdminLogin() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+            </div>
+            <div className="flex justify-end mt-2">
+              <Link
+                to="/forgot-password"
+                className="text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
+              >
+                Forgot Password?
+              </Link>
             </div>
 
             {error && (
